@@ -1,0 +1,19 @@
+{
+    "extends": "@tsconfig/node22/tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "src",
+        "outDir": "dist",
+        "resolveJsonModule": true,
+        "baseUrl": "./src",
+        "paths": {
+            "@server/*": ["./server/*"],
+            "@shared/*": ["./shared/*"],
+            "@config": ["./config"]
+        },
+        "types": ["node", "./src/shared/types.d.ts"],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "isolatedModules": true
+    },
+    "include": ["src"]
+}

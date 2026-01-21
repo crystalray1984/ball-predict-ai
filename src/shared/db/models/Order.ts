@@ -1,4 +1,3 @@
-import { OrderStatus, OrderType } from '@shared/enum'
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
     AllowNull,
@@ -54,8 +53,8 @@ export class Order extends Model<InferAttributes<Order>, InferCreationAttributes
      * 订单金额
      */
     @AllowNull(false)
-    @Column(DataType.DECIMAL(20, 6))
-    declare amount: string | number
+    @Column(DataType.DECIMAL)
+    declare amount: NumberVal
 
     /**
      * 货币类型

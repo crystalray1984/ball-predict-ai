@@ -1,4 +1,3 @@
-import { OddType, Period, RockballOddStatus, Variety } from '@shared/enum'
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
     AllowNull,
@@ -64,15 +63,15 @@ export class RockballOdd extends Model<
      * 触发的盘口
      */
     @AllowNull(false)
-    @Column(DataType.DECIMAL(5, 2))
-    declare source_condition: string | number
+    @Column(DataType.DECIMAL)
+    declare source_condition: NumberVal
 
     /**
      * 触发的水位
      */
     @AllowNull(false)
-    @Column(DataType.DECIMAL(12, 6))
-    declare source_value: string | number
+    @Column(DataType.DECIMAL)
+    declare source_value: NumberVal
 
     /**
      * 投注类型
@@ -99,15 +98,15 @@ export class RockballOdd extends Model<
      * 盘口
      */
     @AllowNull(false)
-    @Column(DataType.DECIMAL(5, 2))
-    declare condition: string | number
+    @Column(DataType.DECIMAL)
+    declare condition: NumberVal
 
     /**
      * 水位条件
      */
     @AllowNull(false)
-    @Column(DataType.DECIMAL(12, 6))
-    declare value: string | number
+    @Column(DataType.DECIMAL)
+    declare value: NumberVal
 
     /**
      * 盘口状态
@@ -121,7 +120,7 @@ export class RockballOdd extends Model<
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare is_open: CreationOptional<0 | 1>
+    declare is_open: CreationOptional<ToggleVal>
 
     /**
      * 来源推荐通道

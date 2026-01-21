@@ -18,21 +18,21 @@ export class UserAccount extends Model<
 
     @AllowNull(false)
     @Column(DataType.DECIMAL)
-    declare usdt: CreationOptional<string | number>
+    declare usdt: CreationOptional<NumberVal>
 
     @AllowNull(false)
     @Column(DataType.DECIMAL)
-    declare usdt_trx: CreationOptional<string | number>
+    declare usdt_trx: CreationOptional<NumberVal>
 
     @AllowNull(false)
     @Column(DataType.DECIMAL)
-    declare usdt_bsc: CreationOptional<string | number>
+    declare usdt_bsc: CreationOptional<NumberVal>
 
     @AllowNull(false)
     @Column(DataType.DECIMAL)
-    declare usdt_endless: CreationOptional<string | number>
+    declare usdt_endless: CreationOptional<NumberVal>
 
     @AllowNull(false)
     @Column(DataType.DECIMAL)
-    declare eds: CreationOptional<string | number>
+    declare eds: CreationOptional<NumberVal>
 }

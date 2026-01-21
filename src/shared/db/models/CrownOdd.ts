@@ -1,4 +1,3 @@
-import { OddIdentity, Period, Variety } from '@shared/enum'
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
     AllowNull,
@@ -61,29 +60,29 @@ export class CrownOdd extends Model<InferAttributes<CrownOdd>, InferCreationAttr
      * 盘口
      */
     @AllowNull(false)
-    @Column(DataType.DECIMAL(5, 2))
-    declare condition: string | number
+    @Column(DataType.DECIMAL)
+    declare condition: NumberVal
 
     /**
      * 上盘水位
      */
     @AllowNull(false)
-    @Column(DataType.DECIMAL(12, 6))
-    declare value1: string | number
+    @Column(DataType.DECIMAL)
+    declare value1: NumberVal
 
     /**
      * 下盘水位
      */
     @AllowNull(false)
-    @Column(DataType.DECIMAL(12, 6))
-    declare value2: string | number
+    @Column(DataType.DECIMAL)
+    declare value2: NumberVal
 
     /**
      * 是否可以被忽略的数据
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare is_ignored: CreationOptional<0 | 1>
+    declare is_ignored: CreationOptional<ToggleVal>
 
     /**
      * 作为推荐依据的数据标记 0-不参与推荐 1-推荐上盘 2-推荐下盘

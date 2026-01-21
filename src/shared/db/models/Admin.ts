@@ -41,7 +41,7 @@ export class Admin extends Model<InferAttributes<Admin>, InferCreationAttributes
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare status: CreationOptional<0 | 1>
+    declare status: CreationOptional<ToggleVal>
 
     @CreatedAt
     @AllowNull(false)

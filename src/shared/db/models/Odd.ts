@@ -1,4 +1,3 @@
-import { OddIdentity, OddNext, OddStatus, OddType, Period, Variety } from '@shared/enum'
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
     AllowNull,
@@ -66,8 +65,8 @@ export class Odd extends Model<InferAttributes<Odd>, InferCreationAttributes<Odd
      * 盘口
      */
     @AllowNull(false)
-    @Column(DataType.DECIMAL(5, 2))
-    declare condition: string | number
+    @Column(DataType.DECIMAL)
+    declare condition: NumberVal
 
     /**
      * 状态
@@ -80,26 +79,26 @@ export class Odd extends Model<InferAttributes<Odd>, InferCreationAttributes<Odd
      * surebet采集水位
      */
     @AllowNull(false)
-    @Column(DataType.DECIMAL(12, 6))
-    declare surebet_value: string | number
+    @Column(DataType.DECIMAL)
+    declare surebet_value: NumberVal
 
     /**
      * 一次对比的皇冠水位
      */
-    @Column(DataType.DECIMAL(12, 6))
-    declare crown_value: CreationOptional<string | number | null>
+    @Column(DataType.DECIMAL)
+    declare crown_value: CreationOptional<NumberVal | null>
 
     /**
      * 二次对比的皇冠水位
      */
-    @Column(DataType.DECIMAL(12, 6))
-    declare crown_value2: CreationOptional<string | number | null>
+    @Column(DataType.DECIMAL)
+    declare crown_value2: CreationOptional<NumberVal | null>
 
     /**
      * 二次对比的皇冠盘口
      */
-    @Column(DataType.DECIMAL(5, 2))
-    declare crown_condition2: CreationOptional<string | number | null>
+    @Column(DataType.DECIMAL)
+    declare crown_condition2: CreationOptional<NumberVal | null>
 
     /**
      * 首次对比完成时间
@@ -131,5 +130,5 @@ export class Odd extends Model<InferAttributes<Odd>, InferCreationAttributes<Odd
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare is_open: CreationOptional<0 | 1>
+    declare is_open: CreationOptional<ToggleVal>
 }

@@ -1,4 +1,3 @@
-import { ClientArch, ClientPlatform } from '@shared/enum'
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
     AllowNull,
@@ -33,14 +32,14 @@ export class ClientVersion extends Model<
      * 平台
      */
     @AllowNull(false)
-    @Column(DataType.STRING(20))
+    @Column(DataType.STRING)
     declare platform: ClientPlatform
 
     /**
      * 架构
      */
     @AllowNull(false)
-    @Column(DataType.STRING(20))
+    @Column(DataType.STRING)
     declare arch: CreationOptional<ClientArch | ''>
 
     /**
@@ -62,14 +61,14 @@ export class ClientVersion extends Model<
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare is_mandatory: CreationOptional<0 | 1>
+    declare is_mandatory: CreationOptional<ToggleVal>
 
     /**
      * 发布状态
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare status: CreationOptional<0 | 1>
+    declare status: CreationOptional<ToggleVal>
 
     /**
      * 更新说明

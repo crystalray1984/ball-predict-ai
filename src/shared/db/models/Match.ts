@@ -38,14 +38,14 @@ export class Match<TAttributes extends {} = {}> extends Model<
      */
     @Unique
     @AllowNull(false)
-    @Column(DataType.STRING(50))
+    @Column(DataType.STRING)
     declare crown_match_id: string
 
     /**
      * 球探网比赛id
      */
     @AllowNull(false)
-    @Column(DataType.STRING(50))
+    @Column(DataType.STRING)
     declare titan007_match_id: CreationOptional<string>
 
     /**
@@ -53,7 +53,7 @@ export class Match<TAttributes extends {} = {}> extends Model<
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare titan007_swap: CreationOptional<0 | 1>
+    declare titan007_swap: CreationOptional<ToggleVal>
 
     /**
      * 赛事id
@@ -99,7 +99,7 @@ export class Match<TAttributes extends {} = {}> extends Model<
      * 比赛状态
      */
     @AllowNull(false)
-    @Column(DataType.STRING(50))
+    @Column(DataType.STRING)
     declare status: CreationOptional<MatchStatus>
 
     /**
@@ -107,7 +107,7 @@ export class Match<TAttributes extends {} = {}> extends Model<
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare has_score: CreationOptional<0 | 1>
+    declare has_score: CreationOptional<ToggleVal>
 
     /**
      * 主队全场得分
@@ -138,7 +138,7 @@ export class Match<TAttributes extends {} = {}> extends Model<
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare has_score_period1: CreationOptional<0 | 1>
+    declare has_score_period1: CreationOptional<ToggleVal>
 
     /**
      * 主队上半场得分
@@ -168,7 +168,7 @@ export class Match<TAttributes extends {} = {}> extends Model<
      * 比赛异常状态
      */
     @AllowNull(false)
-    @Column(DataType.STRING(50))
+    @Column(DataType.STRING)
     declare error_status: CreationOptional<MatchErrorStatus>
 
     @CreatedAt

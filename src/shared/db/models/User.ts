@@ -33,13 +33,13 @@ export class User<TAttributes extends {} = {}> extends Model<
      * 昵称
      */
     @AllowNull(false)
-    @Column(DataType.STRING(100))
-    declare nick_name: CreationOptional<string>
+    @Column(DataType.STRING)
+    declare nickname: CreationOptional<string>
 
     /**
      * 头像地址
      */
-    @Column(DataType.STRING(255))
+    @Column(DataType.STRING)
     declare avatar: CreationOptional<string | null>
 
     /**
@@ -47,7 +47,7 @@ export class User<TAttributes extends {} = {}> extends Model<
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare status: CreationOptional<0 | 1>
+    declare status: CreationOptional<ToggleVal>
 
     /**
      * VIP到期时间
@@ -55,6 +55,14 @@ export class User<TAttributes extends {} = {}> extends Model<
     @AllowNull(false)
     @Column(DataType.DATE)
     declare expire_time: CreationOptional<Date>
+
+    /**
+     * VIP是否已到期
+     */
+    @Column(DataType.VIRTUAL)
+    get is_expired(): CreationOptional<ToggleVal> {
+        return this.expire_time.valueOf() <= Date.now() ? 1 : 0
+    }
 
     @CreatedAt
     @AllowNull(false)
@@ -74,14 +82,14 @@ export class User<TAttributes extends {} = {}> extends Model<
      * 注册来源
      */
     @AllowNull(false)
-    @Column(DataType.STRING(50))
+    @Column(DataType.STRING)
     declare reg_source: CreationOptional<string>
 
     /**
      * 邀请码
      */
     @AllowNull(false)
-    @Column(DataType.STRING(20))
+    @Column(DataType.STRING)
     declare code: CreationOptional<string>
 
     /**

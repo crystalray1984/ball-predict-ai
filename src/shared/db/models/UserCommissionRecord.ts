@@ -52,14 +52,14 @@ export class UserCommissionRecord extends Model<
      */
     @AllowNull(false)
     @Column(DataType.DECIMAL)
-    declare amount: string | number
+    declare amount: NumberVal
 
     /**
      * 变动后的数值
      */
     @AllowNull(false)
     @Column(DataType.DECIMAL)
-    declare amount_after: string | number
+    declare amount_after: NumberVal
 
     @CreatedAt
     @AllowNull(false)

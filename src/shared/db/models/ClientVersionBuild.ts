@@ -55,14 +55,14 @@ export class ClientVersionBuild extends Model<
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare is_base: CreationOptional<0 | 1>
+    declare is_base: CreationOptional<ToggleVal>
 
     /**
      * 发布状态
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare status: CreationOptional<0 | 1>
+    declare status: CreationOptional<ToggleVal>
 
     /**
      * 完整主包信息

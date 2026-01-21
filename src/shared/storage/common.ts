@@ -28,5 +28,5 @@ export interface StorageEngine {
     getFile(remotePath: string, localPath: string): Promise<void>
 
     putFile(localPath: string, remotePath: string): Promise<void>
-    putFile(content: Readable | ArrayBufferLike, remotePath: string): Promise<void>
+    putFile(content: Buffer | Uint8Array | Blob | Readable, remotePath: string): Promise<void>
 }

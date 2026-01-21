@@ -38,7 +38,7 @@ export class UserCommission extends Model<
      */
     @AllowNull(false)
     @Column(DataType.DECIMAL)
-    declare commission: string | number
+    declare commission: NumberVal
 
     /**
      * 佣金货币类型

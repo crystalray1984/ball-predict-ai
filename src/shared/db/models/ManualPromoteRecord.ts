@@ -1,4 +1,3 @@
-import { ManualPromoteType } from '@shared/enum'
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
     AllowNull,

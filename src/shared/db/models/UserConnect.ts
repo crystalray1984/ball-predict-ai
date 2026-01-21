@@ -1,4 +1,3 @@
-import { UserConnectPlatform } from '@shared/enum'
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
     AllowNull,
@@ -45,28 +44,28 @@ export class UserConnect extends Model<
      * 平台类型
      */
     @AllowNull(false)
-    @Column(DataType.STRING(50))
+    @Column(DataType.STRING)
     declare platform: UserConnectPlatform
 
     /**
      * 平台id
      */
     @AllowNull(false)
-    @Column(DataType.STRING(100))
+    @Column(DataType.STRING)
     declare platform_id: CreationOptional<string>
 
     /**
      * 平台账号
      */
     @AllowNull(false)
-    @Column(DataType.STRING(200))
+    @Column(DataType.STRING)
     declare account: string
 
     /**
      * 密码
      */
     @AllowNull(false)
-    @Column(DataType.STRING(50))
+    @Column(DataType.STRING)
     declare password: CreationOptional<string>
 
     /**

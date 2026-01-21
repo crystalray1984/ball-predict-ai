@@ -1,4 +1,3 @@
-import { OddType, Period, Variety } from '@shared/enum'
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
     AllowNull,
@@ -65,8 +64,8 @@ export class ManualPromoteOdd extends Model<
      * 第一盘口
      */
     @AllowNull(false)
-    @Column(DataType.DECIMAL(5, 2))
-    declare condition: string | number
+    @Column(DataType.DECIMAL)
+    declare condition: NumberVal
 
     /**
      * 第二个盘口的投注方向
@@ -77,8 +76,8 @@ export class ManualPromoteOdd extends Model<
     /**
      * 第二盘口
      */
-    @Column(DataType.DECIMAL(5, 2))
-    declare condition2: CreationOptional<string | number | null>
+    @Column(DataType.DECIMAL)
+    declare condition2: CreationOptional<NumberVal | null>
 
     /**
      * 生成的推荐盘口id

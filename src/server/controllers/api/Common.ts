@@ -2,16 +2,17 @@ import { type RouterContext } from '@koa/router'
 import { ValidateBody } from '@server/middlewares/validator'
 import { fail, success } from '@server/utils'
 import { createCaptcha } from '@shared/captcha'
-import { ClientVersion, ClientVersionBuild, UserConnect } from '@shared/db'
-import { sendMail } from '@shared/email'
-import { ClientArch, ClientPlatform, UserConnectPlatform } from '@shared/enum'
+import { CACHE_EMAIL_CODE_PREFIX } from '@shared/constants'
+import { ClientVersion, ClientVersionBuild, LuffaGame, UserConnect } from '@shared/db'
+import { sendMail } from '@shared/mail'
 import { redis } from '@shared/redis'
+import { getSetting } from '@shared/settings'
 import { storage } from '@shared/storage'
 import { getVersionNumber } from '@shared/utils'
 import dayjs from 'dayjs'
 import { dump as dumpYaml } from 'js-yaml'
 import { Action, Controller, FromBody, Post } from 'koa-decorator-helpers'
-import { isEmpty, random } from 'lodash'
+import { isEmpty, random, sortBy } from 'lodash'
 import { InferAttributes, Op, WhereOptions } from 'sequelize'
 import z from 'zod'
 
@@ -19,7 +20,7 @@ import z from 'zod'
  * 客户端公共接口
  */
 @Controller({ prefix: '/common' })
-export class Common {
+export class CommonController {
     /**
      * 获取图形验证码
      */
@@ -44,7 +45,7 @@ export class Common {
             //校验邮箱是否已存在
             const exists = await UserConnect.findOne({
                 where: {
-                    platform: UserConnectPlatform.Email,
+                    platform: 'email',
                     account: body.email,
                 },
                 attributes: ['id'],
@@ -56,7 +57,7 @@ export class Common {
             //校验邮箱是否不存在
             const exists = await UserConnect.findOne({
                 where: {
-                    platform: UserConnectPlatform.Email,
+                    platform: 'email',
                     account: body.email,
                 },
                 attributes: ['id'],
@@ -70,7 +71,7 @@ export class Common {
         const code = random(9999).toString().padStart(4, '0')
 
         //写入Redis缓存
-        await redis.setex(`email_code:${body.email}`, 600, code)
+        await redis.setex(`${CACHE_EMAIL_CODE_PREFIX}${body.email}`, 600, code)
 
         //发送邮件验证码
         try {
@@ -180,6 +181,54 @@ export class Common {
     /**
      * 获取Luffa小游戏列表
      */
-    @Action('/luffa_game_list')
-    async luffaGameList() {}
+    @Action('/luffa_games')
+    async luffaGames() {
+        const list = await LuffaGame.findAll({
+            where: {
+                is_visible: 1,
+            },
+            order: [
+                ['sort', 'desc'],
+                ['id', 'desc'],
+            ],
+            attributes: ['id', 'app_id', 'app_entry', 'img_path', 'name'],
+        })
+
+        list.forEach((item) => {
+            if (!isEmpty(item)) {
+                item.img_path = storage.getUrl(item.img_path)
+            }
+        })
+
+        return success(list)
+    }
+
+    /**
+     * 获取滚球筛选器的可用配置项
+     */
+    @Action('/rockball_filter_options')
+    async rockballFilterOptions() {
+        const config = await getSetting<RockballConfig[]>('rockball_config')
+
+        const data: Record<string, OddInfo & { key: string }> = {}
+        if (Array.isArray(config)) {
+            config.forEach((rule) => {
+                rule.odds.forEach((odd) => {
+                    const key = [odd.period, odd.variety, odd.type, Number(odd.condition)].join(':')
+                    if (data[key]) return
+                    data[key] = {
+                        key,
+                        period: odd.period,
+                        variety: odd.variety,
+                        type: odd.type,
+                        condition: odd.condition,
+                    }
+                })
+            })
+        }
+
+        const options = sortBy(Object.values(data), (t) => t.key)
+
+        return success(options)
+    }
 }

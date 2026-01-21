@@ -30,21 +30,21 @@ export class Team extends Model<InferAttributes<Team>, InferCreationAttributes<T
      */
     @Unique
     @AllowNull(false)
-    @Column(DataType.STRING(50))
+    @Column(DataType.STRING)
     declare crown_team_id: string
 
     /**
      * 球探网球队id
      */
     @AllowNull(false)
-    @Column(DataType.STRING(50))
+    @Column(DataType.STRING)
     declare titan007_team_id: CreationOptional<string>
 
     /**
      * 队伍名称
      */
     @AllowNull(false)
-    @Column(DataType.STRING(100))
+    @Column(DataType.STRING)
     declare name: string
 
     @CreatedAt

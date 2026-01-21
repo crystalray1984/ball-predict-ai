@@ -1,5 +1,6 @@
 import { createRouter } from 'koa-decorator-helpers'
-import { Common } from './Common'
+import { CommonController } from './Common'
+import { UserController } from './User'
 
 /**
  * 返回客户端接口路由
@@ -7,7 +8,7 @@ import { Common } from './Common'
 export function createApiRouter() {
     const router = createRouter({
         prefix: '/api',
-        controllers: [Common],
+        controllers: [CommonController, UserController],
     })
 
     return router

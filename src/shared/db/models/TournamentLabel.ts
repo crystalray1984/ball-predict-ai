@@ -1,4 +1,3 @@
-import { LuffaType } from '@shared/enum'
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
     AllowNull,
@@ -32,14 +31,14 @@ export class TournamentLabel extends Model<
      * 标题
      */
     @AllowNull(false)
-    @Column(DataType.STRING(100))
+    @Column(DataType.STRING)
     declare title: string
 
     /**
      * 要推送的Luffa目标id
      */
     @AllowNull(false)
-    @Column(DataType.STRING(50))
+    @Column(DataType.STRING)
     declare luffa_uid: CreationOptional<string>
 
     /**

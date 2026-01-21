@@ -41,13 +41,13 @@ export class VMatch extends Match<InferAttributes<VMatch>> {
      * 赛事是否开启推荐
      */
     @Column(DataType.TINYINT)
-    declare tournament_is_open: 0 | 1
+    declare tournament_is_open: ToggleVal
 
     /**
      * 赛事是否开启滚球推荐
      */
     @Column(DataType.TINYINT)
-    declare tournament_is_rockball_open: 0 | 1
+    declare tournament_is_rockball_open: ToggleVal
 
     /**
      * 赛事标签id

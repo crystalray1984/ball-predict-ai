@@ -96,7 +96,7 @@ export class SurebetRecord extends Model<
      * 水位
      */
     @Column(DataType.DECIMAL)
-    declare value: string | number
+    declare value: NumberVal
 
     /**
      * 数据源

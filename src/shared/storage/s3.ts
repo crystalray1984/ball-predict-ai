@@ -155,8 +155,11 @@ export class S3Engine implements StorageEngine {
     }
 
     putFile(localPath: string, remotePath: string): Promise<void>
-    putFile(content: Readable | ArrayBufferLike, remotePath: string): Promise<void>
-    putFile(content: string | Readable | ArrayBufferLike, remotePath: string): Promise<void> {
+    putFile(content: Buffer | Uint8Array | Blob | Readable, remotePath: string): Promise<void>
+    putFile(
+        content: string | Buffer | Uint8Array | Blob | Readable,
+        remotePath: string,
+    ): Promise<void> {
         return new Promise((resolve, reject) => {
             const input = typeof content === 'string' ? createReadStream(content) : content
             this.client.upload(

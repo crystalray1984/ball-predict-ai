@@ -1,4 +1,3 @@
-import { WithdrawalStatus } from '@shared/enum'
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
     AllowNull,
@@ -47,7 +46,7 @@ export class UserWithdrawal extends Model<
      */
     @AllowNull(false)
     @Column(DataType.DECIMAL)
-    declare amount: string | number
+    declare amount: NumberVal
 
     /**
      * 提现通道类型

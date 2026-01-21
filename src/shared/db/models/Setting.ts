@@ -10,7 +10,7 @@ export class Setting extends Model<InferAttributes<Setting>> {
      * 配置名
      */
     @PrimaryKey
-    @Column(DataType.STRING(100))
+    @Column(DataType.STRING)
     declare name: string
 
     /**

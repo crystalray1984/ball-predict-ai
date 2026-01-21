@@ -1,4 +1,3 @@
-import { LuffaType } from '@shared/enum'
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
     AllowNull,
@@ -30,7 +29,7 @@ export class LuffaUser extends Model<
      * 用户类型
      */
     @AllowNull(false)
-    @Column(DataType.STRING)
+    @Column(DataType.TINYINT)
     declare type: LuffaType
 
     /**
@@ -38,7 +37,7 @@ export class LuffaUser extends Model<
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare open_push: CreationOptional<0 | 1>
+    declare open_push: CreationOptional<ToggleVal>
 
     @CreatedAt
     @AllowNull(false)

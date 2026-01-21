@@ -56,7 +56,7 @@ export class LuffaGame extends Model<
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare is_visible: CreationOptional<0 | 1>
+    declare is_visible: CreationOptional<ToggleVal>
 
     /**
      * 排序权重

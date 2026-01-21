@@ -1,4 +1,3 @@
-import { OddIdentity, OddType, Period, Variety } from '@shared/enum'
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
     AllowNull,
@@ -57,7 +56,7 @@ export class Promoted<TAttributes extends {} = {}> extends Model<
      */
     @AllowNull(false)
     @Column(DataType.TINYINT)
-    declare is_valid: 0 | 1
+    declare is_valid: ToggleVal
 
     /**
      * 推荐无效的原因
@@ -112,14 +111,14 @@ export class Promoted<TAttributes extends {} = {}> extends Model<
      * 盘口
      */
     @AllowNull(false)
-    @Column(DataType.DECIMAL(5, 2))
-    declare condition: string | number
+    @Column(DataType.DECIMAL)
+    declare condition: NumberVal
 
     /**
      * 推荐水位
      */
-    @Column(DataType.DECIMAL(10, 6))
-    declare value: CreationOptional<string | number | null>
+    @Column(DataType.DECIMAL)
+    declare value: CreationOptional<NumberVal | null>
 
     /**
      * 胜负结果

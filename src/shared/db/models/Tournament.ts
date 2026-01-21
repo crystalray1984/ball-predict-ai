@@ -36,14 +36,14 @@ export class Tournament extends Model<
      */
     @Unique
     @AllowNull(false)
-    @Column(DataType.STRING(50))
+    @Column(DataType.STRING)
     declare crown_tournament_id: string
 
     /**
      * 赛事名称
      */
     @AllowNull(false)
-    @Column(DataType.STRING(100))
+    @Column(DataType.STRING)
     declare name: string
 
     /**

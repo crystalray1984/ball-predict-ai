@@ -1,10 +1,11 @@
+import { isEmpty } from 'lodash'
 import { BinaryLike, createHash } from 'node:crypto'
-import { InferAttributes, Op } from 'sequelize'
+import { Op } from 'sequelize'
 import { CACHE_USER_EXPIRES, CACHE_USER_KEY } from './constants'
 import { User } from './db'
 import { redis } from './redis'
-import { isEmpty } from 'lodash'
 import { TokenPayload, verfiyToken } from './token'
+import Decimal from 'decimal.js'
 
 /**
  * 计算输入值的md5
@@ -32,10 +33,7 @@ export function getVersionNumber(version: string) {
  * 通过缓存查询用户信息
  * @param id
  */
-export async function getUser(
-    id: number,
-    allowCache = true,
-): Promise<InferAttributes<User> | null> {
+export async function getUser(id: number, allowCache = true): Promise<User | null> {
     if (allowCache) {
         const cache = await redis.get(`${CACHE_USER_KEY}${id}`)
         if (cache) {
@@ -61,12 +59,12 @@ export async function getUser(
 export async function getUsers(
     idList: number[],
     allowCache = true,
-): Promise<Record<number, InferAttributes<User>>> {
+): Promise<Record<number, User | null>> {
     if (idList.length === 0) {
         return {}
     }
 
-    const result: Record<number, InferAttributes<User>> = {}
+    const result: Record<number, User> = {}
     let emptyIds: number[] = []
     if (allowCache) {
         const keys = idList.map((id) => `${CACHE_USER_KEY}${id}`)
@@ -141,4 +139,16 @@ export async function parseUserToken(token: any) {
 
     //查询用户信息
     return getUser(payload.id)
+}
+
+/**
+ * 校验输入值是否为有效的数值
+ * @param input
+ */
+export function isDecimal(input: any): input is string | number {
+    try {
+        return !Decimal(input).isNaN()
+    } catch {
+        return false
+    }
 }

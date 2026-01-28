@@ -1,9 +1,12 @@
 import { config } from '@config'
 import { Sequelize } from 'sequelize-typescript'
 import { Admin } from './models/Admin'
+import { BmissUser } from './models/BmissUser'
+import { BmissUserBet } from './models/BmissUserBet'
 import { ClientVersion } from './models/ClientVersion'
 import { ClientVersionBuild } from './models/ClientVersionBuild'
 import { CrownAccount } from './models/CrownAccount'
+import { CrownMainOdd } from './models/CrownMainOdd'
 import { CrownOdd } from './models/CrownOdd'
 import { LabelPromoted } from './models/LabelPromoted'
 import { LuffaGame } from './models/LuffaGame'
@@ -52,9 +55,12 @@ export const db = new Sequelize({
     },
     models: [
         Admin,
+        BmissUser,
+        BmissUserBet,
         ClientVersion,
         ClientVersionBuild,
         CrownAccount,
+        CrownMainOdd,
         CrownOdd,
         LabelPromoted,
         LuffaGame,
@@ -90,9 +96,12 @@ export const db = new Sequelize({
 })
 
 export { Admin } from './models/Admin'
+export { BmissUser } from './models/BmissUser'
+export { BmissUserBet } from './models/BmissUserBet'
 export { ClientVersion } from './models/ClientVersion'
 export { ClientVersionBuild } from './models/ClientVersionBuild'
 export { CrownAccount } from './models/CrownAccount'
+export { CrownMainOdd } from './models/CrownMainOdd'
 export { CrownOdd } from './models/CrownOdd'
 export { LabelPromoted } from './models/LabelPromoted'
 export { LuffaGame } from './models/LuffaGame'

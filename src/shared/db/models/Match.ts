@@ -42,6 +42,13 @@ export class Match<TAttributes extends {} = {}> extends Model<
     declare crown_match_id: string
 
     /**
+     * 比赛时间
+     */
+    @AllowNull(false)
+    @Column(DataType.DATE)
+    declare match_time: Date
+
+    /**
      * 球探网比赛id
      */
     @AllowNull(false)
@@ -180,4 +187,11 @@ export class Match<TAttributes extends {} = {}> extends Model<
     @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
+
+    /**
+     * 允许Bmiss投注
+     */
+    @AllowNull(false)
+    @Column(DataType.TINYINT)
+    declare bmiss_bet_enable: CreationOptional<ToggleVal>
 }

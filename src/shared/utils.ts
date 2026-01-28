@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js'
 import { isEmpty } from 'lodash'
 import { BinaryLike, createHash } from 'node:crypto'
 import { Op } from 'sequelize'
@@ -5,7 +6,6 @@ import { CACHE_USER_EXPIRES, CACHE_USER_KEY } from './constants'
 import { User } from './db'
 import { redis } from './redis'
 import { TokenPayload, verfiyToken } from './token'
-import Decimal from 'decimal.js'
 
 /**
  * 计算输入值的md5
@@ -150,5 +150,90 @@ export function isDecimal(input: any): input is string | number {
         return !Decimal(input).isNaN()
     } catch {
         return false
+    }
+}
+
+const _singletons: Record<string | symbol, () => any> = {}
+
+/**
+ * 执行一项单例任务
+ * @param name 任务标识
+ * @param task 任务
+ */
+export function singleton<T>(name: string | symbol, task: () => T): T {
+    if (typeof _singletons[name] === 'function') {
+        return _singletons[name]()
+    }
+
+    const result = task()
+    if (result instanceof Promise) {
+        _singletons[name] = () => result
+        result.finally(() => {
+            delete _singletons[name]
+        })
+    }
+    return result
+}
+
+/**
+ * 进行比分对比
+ * @param score1
+ * @param score2
+ */
+export function compareScore(score1: Decimal.Value, score2: Decimal.Value): -2 | -1 | 0 | 1 | 2 {
+    //给作为比对的结果加上盘口
+    const delta = Decimal(score1).sub(score2)
+    if (delta.eq('0')) return 0
+    if (delta.gte('0.5')) {
+        return 2
+    }
+    if (delta.gte('0.25')) {
+        return 1
+    }
+    if (delta.lte('-0.5')) {
+        return -2
+    }
+    if (delta.lte('-0.25')) {
+        return -1
+    }
+    return 0
+}
+
+/**
+ * 计算盘口的输赢
+ * @param type
+ * @param condition
+ * @param score1
+ * @param score2
+ */
+export function getOddResult(
+    type: OddType,
+    condition: NumberVal,
+    score1: number,
+    score2: number,
+): -2 | -1 | 0 | 1 | 2 {
+    if (type === 'ah1') {
+        //让球，主队
+        return compareScore(Decimal(score1).add(condition), score2)
+    } else if (type === 'ah2') {
+        //让球，客队
+        return compareScore(Decimal(score2).add(condition), score1)
+    } else if (type === 'win1') {
+        //主队独赢
+        return score1 > score2 ? 2 : -2
+    } else if (type === 'win2') {
+        //客队独赢
+        return score2 > score1 ? 2 : -2
+    } else if (type === 'draw') {
+        //平局
+        return score1 === score2 ? 2 : -2
+    } else if (type === 'under') {
+        //小球
+        return compareScore(condition, score1 + score2)
+    } else if (type === 'over') {
+        //大球
+        return compareScore(score1 + score2, condition)
+    } else {
+        return 0
     }
 }

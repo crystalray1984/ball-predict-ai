@@ -27,3 +27,24 @@ redis:
   pool:
     min: 0
     max: 5
+
+#Bmiss竞猜小程序服务端配置
+bmiss-bet:
+  #HTTP服务监听地址
+  http_port: 3001
+  #单场投注最小金额
+  bet_min: 100
+  #单场投注最大金额
+  bet_max: 5000
+  #单场投注必须是多少的倍数
+  bet_multiple: 100
+  #订单从下单到支付的秒数
+  bet_expires: 120
+
+#Bmiss支持服务配置
+bmiss:
+  - appid: 'BMISS_BKJ8ICK5'
+    #小程序app_secret
+    app_secret: '9bb2b1115caf4fdbf2964d0e99d6fe49'
+    #小程序接口调用地址
+    api_url: 'https://api.bmiss3.zhubei.cn'

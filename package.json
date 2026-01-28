@@ -5,7 +5,8 @@
     "version": "1.0.0",
     "scripts": {
         "build": "tsc",
-        "dev:server": "nodemon -w src --ext \"ts,js,json\" -w config.yaml -w config.yaml.local -x \"ts-node -r tsconfig-paths/register ./src/server/server.ts\""
+        "dev:server": "nodemon -w src --ext \"ts,js,json\" -w config.yaml -w config.yaml.local -x \"ts-node -r tsconfig-paths/register ./src/server/server.ts\"",
+        "dev:bmiss-bet": "nodemon -w src --ext \"ts,js,json\" -w config.yaml -w config.yaml.local -x \"ts-node -r tsconfig-paths/register ./src/bmiss-bet/server.ts\""
     },
     "devDependencies": {
         "@tsconfig/node22": "^22.0.5",
@@ -34,6 +35,7 @@
         "dayjs": "^1.11.19",
         "decimal.js": "^10.6.0",
         "generic-pool": "^3.9.0",
+        "i18next": "^25.8.0",
         "iconv-lite": "^0.7.2",
         "ioredis": "^5.9.2",
         "js-levenshtein": "^1.1.6",

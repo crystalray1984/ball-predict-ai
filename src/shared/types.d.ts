@@ -76,12 +76,12 @@ declare type Period = 'regularTime' | 'period1'
 /**
  * 投注方向
  */
-declare type OddType = 'ah1' | 'ah2' | 'over' | 'under' | 'draw'
+declare type OddType = 'ah1' | 'ah2' | 'over' | 'under' | 'draw' | 'win1' | 'win2'
 
 /**
  * 投注方向类型
  */
-declare type OddIdentity = 'ah' | 'sum'
+declare type OddIdentity = 'ah' | 'sum' | 'win'
 
 /**
  * 盘口的基本信息
@@ -149,3 +149,12 @@ declare type RockballOddStatus = '' | 'promoted'
  * 提现状态
  */
 declare type WithdrawalStatus = '' | 'success' | 'fail'
+
+/**
+ * Bmiss小程序参数定义
+ */
+declare interface BmissMiniapp {
+    appid: string
+    app_secret: string
+    api_url: string
+}

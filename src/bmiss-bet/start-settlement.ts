@@ -1,5 +1,5 @@
 import { Bmiss } from '@shared/bmiss'
-import { BmissUserBet, Match } from '@shared/db'
+import { BmissUser, BmissUserBet, db, Match } from '@shared/db'
 import { consume, publish } from '@shared/rabbitmq'
 import { getOddResult } from '@shared/utils'
 import Decimal from 'decimal.js'
@@ -35,16 +35,14 @@ async function settlement(match_id: number) {
 
     for (const bet of bets) {
         //结算投注单
-        const result = getOddResult(bet.type, bet.condition, score1, score2)
-        switch (result) {
+        bet.result = getOddResult(bet.type, bet.condition, score1, score2)
+        switch (bet.result) {
             case 2:
                 //全赢
-                bet.result = 1
                 bet.result_amount = Decimal(bet.amount).mul(bet.value).floor().toNumber()
                 break
             case 1:
                 //半赢
-                bet.result = 1
                 bet.result_amount = Decimal(bet.amount)
                     .mul(Decimal(bet.value).add(1))
                     .div(2)
@@ -53,17 +51,14 @@ async function settlement(match_id: number) {
                 break
             case -1:
                 //半输
-                bet.result = -1
                 bet.result_amount = Decimal(bet.amount).div(2).floor().toNumber()
                 break
             case 2:
                 //全输
-                bet.result = -1
                 bet.result_amount = 0
                 break
             default:
                 //和局
-                bet.result = 0
                 bet.result_amount = bet.amount
                 break
         }
@@ -78,8 +73,26 @@ async function settlement(match_id: number) {
                 break
         }
 
-        //保存数据
-        await bet.save()
+        bet.settlement_at = new Date()
+
+        await db.transaction(async (transaction) => {
+            //保存数据
+            await bet.save({ transaction })
+
+            //计算用户收益
+            const profit = bet.result_amount - bet.amount
+            if (profit !== 0) {
+                await BmissUser.increment(
+                    {
+                        profit,
+                    },
+                    {
+                        where: { id: bet.user_id },
+                        transaction,
+                    },
+                )
+            }
+        })
 
         //抛到队列进行奖金返还
         if (bet.result_amount > 0) {
@@ -124,7 +137,6 @@ async function settlmentIncome(bet_id: number) {
     })
     if (ret.code === 200) {
         //调用成功
-        bet.settlement_at = new Date()
         bet.result_status = 'success'
         await bet.save()
     } else {

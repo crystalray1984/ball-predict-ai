@@ -72,4 +72,10 @@ export class BmissUser extends Model<
      */
     @Column(DataType.DATE)
     declare last_login_at: CreationOptional<Date>
+
+    /**
+     * 累计收益
+     */
+    @Column(DataType.INTEGER)
+    declare profit: CreationOptional<number>
 }

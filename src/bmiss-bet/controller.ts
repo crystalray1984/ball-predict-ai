@@ -193,7 +193,7 @@ class ApiController {
             },
             include: [
                 {
-                    model: Match,
+                    model: VMatch,
                     required: true,
                     attributes: ['match_time'],
                 },

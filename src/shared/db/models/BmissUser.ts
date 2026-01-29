@@ -1,6 +1,5 @@
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
-    AllowNull,
     AutoIncrement,
     Column,
     CreatedAt,
@@ -77,5 +76,11 @@ export class BmissUser extends Model<
      * 累计收益
      */
     @Column(DataType.INTEGER)
-    declare profit: CreationOptional<number>
+    declare profit: CreationOptional<NumberVal>
+
+    /**
+     * 账户余额
+     */
+    @Column(DataType.INTEGER)
+    declare balance: CreationOptional<NumberVal>
 }

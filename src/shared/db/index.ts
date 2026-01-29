@@ -1,8 +1,11 @@
 import { config } from '@config'
 import { Sequelize } from 'sequelize-typescript'
 import { Admin } from './models/Admin'
+import { BmissRecharge } from './models/BmissRecharge'
 import { BmissUser } from './models/BmissUser'
+import { BmissUserBalanceLog } from './models/BmissUserBalanceLog'
 import { BmissUserBet } from './models/BmissUserBet'
+import { BmissWithdrawal } from './models/BmissWithdrawal'
 import { ClientVersion } from './models/ClientVersion'
 import { ClientVersionBuild } from './models/ClientVersionBuild'
 import { CrownAccount } from './models/CrownAccount'
@@ -55,8 +58,11 @@ export const db = new Sequelize({
     },
     models: [
         Admin,
+        BmissRecharge,
         BmissUser,
+        BmissUserBalanceLog,
         BmissUserBet,
+        BmissWithdrawal,
         ClientVersion,
         ClientVersionBuild,
         CrownAccount,
@@ -96,8 +102,11 @@ export const db = new Sequelize({
 })
 
 export { Admin } from './models/Admin'
+export { BmissRecharge } from './models/BmissRecharge'
 export { BmissUser } from './models/BmissUser'
+export { BmissUserBalanceLog } from './models/BmissUserBalanceLog'
 export { BmissUserBet } from './models/BmissUserBet'
+export { BmissWithdrawal } from './models/BmissWithdrawal'
 export { ClientVersion } from './models/ClientVersion'
 export { ClientVersionBuild } from './models/ClientVersionBuild'
 export { CrownAccount } from './models/CrownAccount'

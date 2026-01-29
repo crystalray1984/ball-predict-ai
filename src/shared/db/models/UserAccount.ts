@@ -16,23 +16,18 @@ export class UserAccount extends Model<
     @Column(DataType.INTEGER)
     declare user_id: number
 
-    @AllowNull(false)
     @Column(DataType.DECIMAL)
     declare usdt: CreationOptional<NumberVal>
 
-    @AllowNull(false)
     @Column(DataType.DECIMAL)
     declare usdt_trx: CreationOptional<NumberVal>
 
-    @AllowNull(false)
     @Column(DataType.DECIMAL)
     declare usdt_bsc: CreationOptional<NumberVal>
 
-    @AllowNull(false)
     @Column(DataType.DECIMAL)
     declare usdt_endless: CreationOptional<NumberVal>
 
-    @AllowNull(false)
     @Column(DataType.DECIMAL)
     declare eds: CreationOptional<NumberVal>
 }

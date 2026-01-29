@@ -29,31 +29,28 @@ export class Team extends Model<InferAttributes<Team>, InferCreationAttributes<T
      * 皇冠球队id
      */
     @Unique
-    @AllowNull(false)
     @Column(DataType.STRING)
     declare crown_team_id: string
 
     /**
      * 球探网球队id
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare titan007_team_id: CreationOptional<string>
 
     /**
      * 队伍名称
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare name: string
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     @UpdatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 }

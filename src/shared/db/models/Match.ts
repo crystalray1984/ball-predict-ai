@@ -37,28 +37,27 @@ export class Match<TAttributes extends {} = {}> extends Model<
      * 皇冠比赛id
      */
     @Unique
-    @AllowNull(false)
     @Column(DataType.STRING)
     declare crown_match_id: string
 
     /**
      * 比赛时间
      */
-    @AllowNull(false)
+
     @Column(DataType.DATE)
     declare match_time: Date
 
     /**
      * 球探网比赛id
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare titan007_match_id: CreationOptional<string>
 
     /**
      * 球探网主客队交换
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare titan007_swap: CreationOptional<ToggleVal>
 
@@ -66,7 +65,6 @@ export class Match<TAttributes extends {} = {}> extends Model<
      * 赛事id
      */
     @ForeignKey(() => Tournament)
-    @AllowNull(false)
     @Column(DataType.INTEGER)
     declare tournament_id: number
 
@@ -79,7 +77,7 @@ export class Match<TAttributes extends {} = {}> extends Model<
     /**
      * 主队id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare team1_id: number
 
@@ -92,7 +90,7 @@ export class Match<TAttributes extends {} = {}> extends Model<
     /**
      * 客队id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare team2_id: number
 
@@ -105,14 +103,14 @@ export class Match<TAttributes extends {} = {}> extends Model<
     /**
      * 比赛状态
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare status: CreationOptional<MatchStatus>
 
     /**
      * 是否已有完场赛果
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare has_score: CreationOptional<ToggleVal>
 
@@ -143,7 +141,7 @@ export class Match<TAttributes extends {} = {}> extends Model<
     /**
      * 是否已有上半场赛果
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare has_score_period1: CreationOptional<ToggleVal>
 
@@ -174,24 +172,22 @@ export class Match<TAttributes extends {} = {}> extends Model<
     /**
      * 比赛异常状态
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare error_status: CreationOptional<MatchErrorStatus>
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     @UpdatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 
     /**
      * 允许Bmiss投注
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare bmiss_bet_enable: CreationOptional<ToggleVal>
 }

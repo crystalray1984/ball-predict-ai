@@ -33,7 +33,7 @@ export class ClientVersionBuild extends Model<
     /**
      * 版本id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare client_version_id: number
 
@@ -46,21 +46,21 @@ export class ClientVersionBuild extends Model<
     /**
      * 编译版本号
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare build_number: CreationOptional<number>
 
     /**
      * 是否为底包更新
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare is_base: CreationOptional<ToggleVal>
 
     /**
      * 发布状态
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare status: CreationOptional<ToggleVal>
 
@@ -83,12 +83,10 @@ export class ClientVersionBuild extends Model<
     declare zip_info: CreationOptional<any>
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     @UpdatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 

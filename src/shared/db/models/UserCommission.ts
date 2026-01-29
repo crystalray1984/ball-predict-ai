@@ -29,33 +29,32 @@ export class UserCommission extends Model<
     /**
      * 用户id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare user_id: number
 
     /**
      * 获得的佣金
      */
-    @AllowNull(false)
+
     @Column(DataType.DECIMAL)
     declare commission: NumberVal
 
     /**
      * 佣金货币类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare currency: string
 
     /**
      * 产生佣金的订单id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare order_id: number
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 

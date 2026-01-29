@@ -29,28 +29,28 @@ export class BmissUser extends Model<
     /**
      * 用户openid
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare openid: string
 
     /**
      * Bmiss小程序appid
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare appid: string
 
     /**
      * 昵称
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare nickname: string
 
     /**
      * 头像
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare avatar: CreationOptional<string>
 
@@ -58,21 +58,18 @@ export class BmissUser extends Model<
      * 首次登录时间
      */
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     /**
      * 资料更新时间
      */
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 
     /**
      * 最后登录时间
      */
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare last_login_at: CreationOptional<Date>
 }

@@ -2,3 +2,4 @@ node_modules/
 dist/
 config.yaml
 config.yaml.local
+public/

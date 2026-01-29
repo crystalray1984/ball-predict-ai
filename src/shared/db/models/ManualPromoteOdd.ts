@@ -28,42 +28,42 @@ export class ManualPromoteOdd extends Model<
     /**
      * 推荐记录id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare record_id: number
 
     /**
      * 比赛id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare match_id: number
 
     /**
      * 投注类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare variety: Variety
 
     /**
      * 比赛时段
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare period: Period
 
     /**
      * 第一个盘口的投注方向
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare type: OddType
 
     /**
      * 第一盘口
      */
-    @AllowNull(false)
+
     @Column(DataType.DECIMAL)
     declare condition: NumberVal
 
@@ -82,17 +82,15 @@ export class ManualPromoteOdd extends Model<
     /**
      * 生成的推荐盘口id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare promoted_odd_id: CreationOptional<number>
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     @UpdatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 

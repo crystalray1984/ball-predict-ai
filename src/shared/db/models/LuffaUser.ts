@@ -28,24 +28,22 @@ export class LuffaUser extends Model<
     /**
      * 用户类型
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare type: LuffaType
 
     /**
      * 是否开启推送
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare open_push: CreationOptional<ToggleVal>
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     @UpdatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 }

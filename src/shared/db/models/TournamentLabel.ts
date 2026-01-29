@@ -30,21 +30,21 @@ export class TournamentLabel extends Model<
     /**
      * 标题
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare title: string
 
     /**
      * 要推送的Luffa目标id
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare luffa_uid: CreationOptional<string>
 
     /**
      * 要推送的Luffa目标类型
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare luffa_type: CreationOptional<LuffaType>
 

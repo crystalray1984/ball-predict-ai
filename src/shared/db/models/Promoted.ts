@@ -26,91 +26,91 @@ export class Promoted<TAttributes extends {} = {}> extends Model<
     /**
      * 比赛id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare match_id: number
 
     /**
      * 来源类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare source_type: string
 
     /**
      * 来源id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare source_id: number
 
     /**
      * 推荐频道
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare channel: string
 
     /**
      * 是否为有效推荐
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare is_valid: ToggleVal
 
     /**
      * 推荐无效的原因
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare skip: CreationOptional<string>
 
     /**
      * 周标记
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare week_day: number
 
     /**
      * 周序号
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare week_id: CreationOptional<number>
 
     /**
      * 投注类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare variety: Variety
 
     /**
      * 比赛时段
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare period: Period
 
     /**
      * 投注方向
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare type: OddType
 
     /**
      * 投注方向类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare odd_type: OddIdentity
 
     /**
      * 盘口
      */
-    @AllowNull(false)
+
     @Column(DataType.DECIMAL)
     declare condition: NumberVal
 
@@ -151,7 +151,6 @@ export class Promoted<TAttributes extends {} = {}> extends Model<
     declare extra: CreationOptional<any>
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 }

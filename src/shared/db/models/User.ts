@@ -32,7 +32,7 @@ export class User<TAttributes extends {} = {}> extends Model<
     /**
      * 昵称
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare nickname: CreationOptional<string>
 
@@ -45,14 +45,14 @@ export class User<TAttributes extends {} = {}> extends Model<
     /**
      * 状态 1-正常 0-已禁用
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare status: CreationOptional<ToggleVal>
 
     /**
      * VIP到期时间
      */
-    @AllowNull(false)
+
     @Column(DataType.DATE)
     declare expire_time: CreationOptional<Date>
 
@@ -65,12 +65,10 @@ export class User<TAttributes extends {} = {}> extends Model<
     }
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     @UpdatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 
@@ -81,21 +79,21 @@ export class User<TAttributes extends {} = {}> extends Model<
     /**
      * 注册来源
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare reg_source: CreationOptional<string>
 
     /**
      * 邀请码
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare code: CreationOptional<string>
 
     /**
      * 邀请人id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare invite_user_id: CreationOptional<number>
 

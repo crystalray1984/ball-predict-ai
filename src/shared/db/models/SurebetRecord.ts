@@ -26,63 +26,63 @@ export class SurebetRecord extends Model<
     /**
      * 皇冠比赛id
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare crown_match_id: string
 
     /**
      * 比赛时间
      */
-    @AllowNull(false)
+
     @Column(DataType.DATE)
     declare match_time: Date
 
     /**
      * 主队名称
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare team1: string
 
     /**
      * 客队名称
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare team2: string
 
     /**
      * 类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare game: string
 
     /**
      * 类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare base: string
 
     /**
      * 投注类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare variety: string
 
     /**
      * 比赛时段
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare period: string
 
     /**
      * 投注方向
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare type: string
 
@@ -101,12 +101,11 @@ export class SurebetRecord extends Model<
     /**
      * 数据源
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare source: string
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 }

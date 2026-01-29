@@ -24,49 +24,49 @@ export class Order extends Model<InferAttributes<Order>, InferCreationAttributes
     /**
      * 订单日期
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare order_date: number
 
     /**
      * 订单号
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare order_number: CreationOptional<string>
 
     /**
      * 用户id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare user_id: number
 
     /**
      * 订单类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare type: OrderType
 
     /**
      * 订单金额
      */
-    @AllowNull(false)
+
     @Column(DataType.DECIMAL)
     declare amount: NumberVal
 
     /**
      * 货币类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare currency: string
 
     /**
      * 订单状态
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare status: CreationOptional<OrderStatus>
 
@@ -79,21 +79,21 @@ export class Order extends Model<InferAttributes<Order>, InferCreationAttributes
     /**
      * 收款商户类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare channel_type: string
 
     /**
      * 收款商户号
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare channel_id: CreationOptional<string>
 
     /**
      * 外部收款订单号
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare channel_order_no: CreationOptional<string>
 
@@ -110,12 +110,10 @@ export class Order extends Model<InferAttributes<Order>, InferCreationAttributes
     declare paid_at: CreationOptional<Date | null>
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     @UpdatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 }

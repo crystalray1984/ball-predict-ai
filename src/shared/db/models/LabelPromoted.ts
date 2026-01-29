@@ -28,7 +28,7 @@ export class LabelPromoted extends Model<
     /**
      * 原始推荐id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare promote_id: number
 
@@ -36,7 +36,6 @@ export class LabelPromoted extends Model<
      * 标签id
      */
     @ForeignKey(() => TournamentLabel)
-    @AllowNull(false)
     @Column(DataType.INTEGER)
     declare label_id: number
 
@@ -49,14 +48,14 @@ export class LabelPromoted extends Model<
     /**
      * 周标记
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare week_day: number
 
     /**
      * 周序号
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare week_id: CreationOptional<number>
 }

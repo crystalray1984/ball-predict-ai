@@ -35,28 +35,27 @@ export class Tournament extends Model<
      * 皇冠赛事id
      */
     @Unique
-    @AllowNull(false)
     @Column(DataType.STRING)
     declare crown_tournament_id: string
 
     /**
      * 赛事名称
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare name: string
 
     /**
      * 是否开启推荐
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare is_open: CreationOptional<number>
 
     /**
      * 是否开启滚球推荐
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare is_rockball_open: CreationOptional<number>
 
@@ -64,7 +63,6 @@ export class Tournament extends Model<
      * 赛事标签id
      */
     @ForeignKey(() => TournamentLabel)
-    @AllowNull(false)
     @Column(DataType.INTEGER)
     declare label_id: CreationOptional<number>
 
@@ -75,12 +73,10 @@ export class Tournament extends Model<
     declare label: CreationOptional<TournamentLabel | undefined>
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     @UpdatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 }

@@ -39,16 +39,16 @@ export class CrownMainOdd extends Model<
     @Column(DataType.STRING)
     declare hash: string
 
-    @Column(DataType.DECIMAL(10, 2))
+    @Column(DataType.DECIMAL)
     declare condition: NumberVal
 
-    @Column(DataType.DECIMAL(12, 6))
+    @Column(DataType.DECIMAL)
     declare value1: NumberVal
 
-    @Column(DataType.DECIMAL(12, 6))
+    @Column(DataType.DECIMAL)
     declare value2: NumberVal
 
-    @Column(DataType.DECIMAL(12, 6))
+    @Column(DataType.DECIMAL)
     declare value0: CreationOptional<NumberVal>
 
     @CreatedAt

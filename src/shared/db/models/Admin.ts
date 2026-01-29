@@ -1,6 +1,5 @@
 import type { CreationOptional, InferAttributes, InferCreationAttributes } from 'sequelize'
 import {
-    AllowNull,
     AutoIncrement,
     Column,
     CreatedAt,
@@ -25,31 +24,26 @@ export class Admin extends Model<InferAttributes<Admin>, InferCreationAttributes
     /**
      * 用户名
      */
-    @AllowNull(false)
     @Column(DataType.STRING)
     declare username: string
 
     /**
      * 密码
      */
-    @AllowNull(false)
     @Column(DataType.STRING)
     declare password: string
 
     /**
      * 状态 1-正常 0-禁用
      */
-    @AllowNull(false)
     @Column(DataType.TINYINT)
     declare status: CreationOptional<ToggleVal>
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     @UpdatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 

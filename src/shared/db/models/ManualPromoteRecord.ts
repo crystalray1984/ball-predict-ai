@@ -28,17 +28,15 @@ export class ManualPromoteRecord extends Model<
     /**
      * 推荐类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare type: ManualPromoteType
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     @UpdatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 

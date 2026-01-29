@@ -33,7 +33,7 @@ export class UserConnect extends Model<
     /**
      * 用户id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare user_id: number
 
@@ -43,28 +43,28 @@ export class UserConnect extends Model<
     /**
      * 平台类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare platform: UserConnectPlatform
 
     /**
      * 平台id
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare platform_id: CreationOptional<string>
 
     /**
      * 平台账号
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare account: string
 
     /**
      * 密码
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare password: CreationOptional<string>
 
@@ -75,12 +75,10 @@ export class UserConnect extends Model<
     declare extra: CreationOptional<any>
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     @UpdatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 

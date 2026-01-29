@@ -26,19 +26,18 @@ export class NotificationLog extends Model<
     /**
      * 通知标识
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare keyword: string
 
     /**
      * 通知类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare category: string
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 }

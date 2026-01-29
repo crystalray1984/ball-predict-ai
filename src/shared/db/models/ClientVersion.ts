@@ -31,42 +31,42 @@ export class ClientVersion extends Model<
     /**
      * 平台
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare platform: ClientPlatform
 
     /**
      * 架构
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare arch: CreationOptional<ClientArch | ''>
 
     /**
      * 版本号
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare version: string
 
     /**
      * 版本号数值
      */
-    @AllowNull(false)
+
     @Column(DataType.BIGINT)
     declare version_number: number
 
     /**
      * 是否强制更新
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare is_mandatory: CreationOptional<ToggleVal>
 
     /**
      * 发布状态
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare status: CreationOptional<ToggleVal>
 
@@ -77,12 +77,10 @@ export class ClientVersion extends Model<
     declare note: CreationOptional<string | null>
 
     @CreatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
 
     @UpdatedAt
-    @AllowNull(false)
     @Column(DataType.DATE)
     declare updated_at: CreationOptional<Date>
 

@@ -22,63 +22,63 @@ export class Odd extends Model<InferAttributes<Odd>, InferCreationAttributes<Odd
     /**
      * 比赛id
      */
-    @AllowNull(false)
+
     @Column(DataType.INTEGER)
     declare match_id: number
 
     /**
      * 皇冠比赛id
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare crown_match_id: string
 
     /**
      * 投注类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare variety: Variety
 
     /**
      * 比赛时段
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare period: Period
 
     /**
      * 投注方向
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare type: OddType
 
     /**
      * 投注方向类型
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare odd_type: OddIdentity
 
     /**
      * 盘口
      */
-    @AllowNull(false)
+
     @Column(DataType.DECIMAL)
     declare condition: NumberVal
 
     /**
      * 状态
      */
-    @AllowNull(false)
+
     @Column(DataType.STRING)
     declare status: CreationOptional<OddStatus>
 
     /**
      * surebet采集水位
      */
-    @AllowNull(false)
+
     @Column(DataType.DECIMAL)
     declare surebet_value: NumberVal
 
@@ -121,14 +121,14 @@ export class Odd extends Model<InferAttributes<Odd>, InferCreationAttributes<Odd
     /**
      * surebet最后推送时间
      */
-    @AllowNull(false)
+
     @Column(DataType.DATE)
     declare surebet_updated_at: CreationOptional<Date>
 
     /**
      * 此盘口是否允许推荐
      */
-    @AllowNull(false)
+
     @Column(DataType.TINYINT)
     declare is_open: CreationOptional<ToggleVal>
 }

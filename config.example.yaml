@@ -28,6 +28,51 @@ redis:
     min: 0
     max: 5
 
+#JWT配置
+jwt:
+  #签名密钥
+  key: ''
+  #默认过期时间（秒）
+  expire: 604800
+
+#Luffa机器人配置
+luffa:
+  uid: ''
+  secret: ''
+  #提醒消息的通知目标
+  notification:
+    - type: 1
+      uid: ''
+  notification_channel2:
+    - type: 1
+      uid: ''
+
+#Plisio支付通道配置
+plisio:
+  email: 'admin@188zq.vip'
+  secret: ''
+
+#邮件配置
+mail:
+  #邮件发送配置
+  transport:
+    host: 'mail.188zq.vip'
+    username: 'service@188zq.vip'
+    password: ''
+    port: 25
+  #默认发件人
+  from: 'service@188zq.vip'
+
+#存储配置
+storage:
+  type: 's3'
+  s3:
+    region: 'ap-southeast-1'
+    bucket: '188zq-files'
+    key: ''
+    secret: ''
+    url_prefix: 'https://188zq-files.s3-accelerate.amazonaws.com/'
+
 #Bmiss竞猜小程序服务端配置
 bmiss-bet:
   #HTTP服务监听地址

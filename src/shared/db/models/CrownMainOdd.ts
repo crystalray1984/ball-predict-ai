@@ -5,7 +5,6 @@ import {
     Column,
     CreatedAt,
     DataType,
-    HasOne,
     Model,
     PrimaryKey,
     Table,
@@ -28,7 +27,7 @@ export class CrownMainOdd extends Model<
     @Column(DataType.INTEGER)
     declare match_id: number
 
-    @HasOne(() => VMatch, 'match_id')
+    @BelongsTo(() => VMatch, 'match_id')
     declare match: CreationOptional<VMatch>
 
     @Column(DataType.STRING)

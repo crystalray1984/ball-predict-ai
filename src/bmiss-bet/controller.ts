@@ -13,6 +13,7 @@ import { Attributes, Op, WhereOptions } from 'sequelize'
 import z from 'zod'
 import { RequireBmissUserToken } from './middlewares/require-bmiss-user-token'
 import { ValidateBody } from './middlewares/validator'
+import Decimal from 'decimal.js'
 
 /**
  * 接口控制器
@@ -211,20 +212,24 @@ class ApiController {
 
         //校验盘口与投注方向一致，并计算投注水位
         let value: NumberVal
+        let condition: NumberVal
         switch (odd.base) {
             case 'ah':
                 switch (params.type) {
                     case 'ah1':
                         value = odd.value1
+                        condition = odd.condition
                         break
                     case 'ah2':
                         value = odd.value2
+                        condition = Decimal(0).sub(odd.condition).toString()
                         break
                     default:
                         return fail(ctx.state.t('invalid_action'))
                 }
                 break
             case 'sum':
+                condition = odd.condition
                 switch (params.type) {
                     case 'under':
                         value = odd.value1
@@ -237,6 +242,7 @@ class ApiController {
                 }
                 break
             case 'win':
+                condition = odd.condition
                 switch (params.type) {
                     case 'win1':
                         value = odd.value1
@@ -264,7 +270,7 @@ class ApiController {
                 match_id: odd.match_id,
                 base: odd.base,
                 type: params.type,
-                condition: odd.condition,
+                condition,
                 value,
                 amount: params.amount,
             },

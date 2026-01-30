@@ -326,7 +326,7 @@ class ApiController {
             const user = (await BmissUser.findByPk(ctx.state.user.id, {
                 transaction,
                 lock: transaction.LOCK.UPDATE,
-                attributes: ['balance'],
+                attributes: ['id', 'balance'],
             }))!
             if (Decimal(user.balance).lt(params.amount)) {
                 await transaction.rollback()

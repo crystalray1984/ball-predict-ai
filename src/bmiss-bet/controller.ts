@@ -823,6 +823,15 @@ class ApiController {
             list: rows,
         }
     }
+
+    /**
+     * 获取当前用户的信息
+     */
+    @RequireBmissUserToken
+    @Action('/user_info')
+    userInfo(ctx: RouterContext) {
+        return success(ctx.state.user)
+    }
 }
 
 /**

@@ -4,6 +4,7 @@ import { close as closeQueue } from '@shared/rabbitmq'
 import { redis } from '@shared/redis'
 import { createServer } from 'http'
 import { createApp } from './app'
+import { startSocketServer } from './socket'
 
 /**
  * 创建HTTP服务器
@@ -35,6 +36,7 @@ export function createHttpServer() {
  */
 export function runHttpServer() {
     const { server } = createHttpServer()
+    startSocketServer(server)
 
     const port = config<number>('bmiss-bet.http_port', 3001)
 

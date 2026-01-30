@@ -337,7 +337,7 @@ class ApiController {
             const betSum = await BmissUserBet.sum('amount', {
                 where: {
                     user_id: user.id,
-                    match_id: odd.match.id,
+                    match_id: odd.match_id,
                 },
                 transaction,
             })

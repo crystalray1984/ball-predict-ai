@@ -1,6 +1,5 @@
-import { Bmiss } from '@shared/bmiss'
-import { BmissUser, BmissUserBet, db, Match } from '@shared/db'
-import { consume, publish } from '@shared/rabbitmq'
+import { BmissUser, BmissUserBalanceLog, BmissUserBet, db, Match } from '@shared/db'
+import { consume } from '@shared/rabbitmq'
 import { getOddResult } from '@shared/utils'
 import Decimal from 'decimal.js'
 
@@ -23,7 +22,6 @@ async function settlement(match_id: number) {
     const bets = await BmissUserBet.findAll({
         where: {
             match_id,
-            paid: 1,
             result: null,
         },
     })
@@ -74,30 +72,43 @@ async function settlement(match_id: number) {
         }
 
         bet.settlement_at = new Date()
+        //计算用户收益
+        const profit = Decimal(bet.result_amount).sub(bet.amount)
 
         await db.transaction(async (transaction) => {
             //保存数据
             await bet.save({ transaction })
 
-            //计算用户收益
-            const profit = bet.result_amount - bet.amount
-            if (profit !== 0) {
-                await BmissUser.increment(
-                    {
-                        profit,
-                    },
-                    {
-                        where: { id: bet.user_id },
-                        transaction,
-                    },
-                )
+            //读取用户信息
+            const user = await BmissUser.findByPk(bet.user_id, {
+                transaction,
+                lock: transaction.LOCK.UPDATE,
+            })
+            if (user) {
+                //增加余额
+                if (Decimal(bet.result_amount).gt(0)) {
+                    user.balance = Decimal(user.balance).add(bet.result_amount).toString()
+                    //插入余额变动记录表
+                    await BmissUserBalanceLog.create(
+                        {
+                            user_id: bet.user_id,
+                            type: 'bet_result',
+                            amount: bet.result_amount,
+                            balance_after: user.balance,
+                            created_at: bet.settlement_at!,
+                        },
+                        { transaction },
+                    )
+                }
+
+                //累加收益
+                if (!profit.eq(0)) {
+                    user.profit = Decimal(user.profit).add(profit).toString()
+                }
+
+                await user.save({ transaction })
             }
         })
-
-        //抛到队列进行奖金返还
-        if (bet.result_amount > 0) {
-            await publish('bmiss-bet-settlement-income', JSON.stringify({ bet_id: bet.id }))
-        }
     }
 }
 
@@ -114,50 +125,6 @@ async function startSettlement() {
     }
 }
 
-/**
- * 结算投注收益
- * @param bet_id
- */
-async function settlmentIncome(bet_id: number) {
-    //查询投注单
-    const bet = await BmissUserBet.findOne({
-        where: {
-            id: bet_id,
-        },
-    })
-    if (!bet) return
-    if (bet.result_amount <= 0) return
-    if (bet.settlement_at) return
-
-    //调用接口
-    const ret = await Bmiss.create(bet.appid).withdrawal({
-        openid: bet.openid,
-        amount: bet.result_amount,
-        out_order_no: `bmiss_user_bet_income_${bet.id}`,
-    })
-    if (ret.code === 200) {
-        //调用成功
-        bet.result_status = 'success'
-        await bet.save()
-    } else {
-        console.error('[投注结算]', '提现失败', JSON.stringify(ret))
-    }
-}
-
-/**
- * 启动结算收益队列
- */
-async function startSettlementIncome() {
-    while (true) {
-        const [promise] = consume('bmiss-bet-settlement-income', async (content) => {
-            const data = JSON.parse(content)
-            await settlmentIncome(data.bet_id)
-        })
-        await promise
-    }
-}
-
 if (require.main === module) {
     startSettlement()
-    startSettlementIncome()
 }

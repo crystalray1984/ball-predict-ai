@@ -54,4 +54,24 @@ export class CrownMainOdd extends Model<
     @CreatedAt
     @Column(DataType.DATE)
     declare created_at: CreationOptional<Date>
+
+    /**
+     * 自定义格式化方法
+     */
+    public toJSON(): object {
+        const obj = this.get()
+        if ('condition' in obj) {
+            obj.condition = Number(obj.condition)
+        }
+        if ('value1' in obj) {
+            obj.value1 = Number(obj.value1)
+        }
+        if ('value2' in obj) {
+            obj.value2 = Number(obj.value2)
+        }
+        if ('value0' in obj) {
+            obj.value0 = Number(obj.value0)
+        }
+        return obj
+    }
 }

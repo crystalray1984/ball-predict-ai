@@ -1,4 +1,22 @@
 /**
+ * 接口响应数据结构
+ */
+declare interface ApiResp<T = void> {
+    /**
+     * 响应码
+     */
+    code: number
+    /**
+     * 响应消息
+     */
+    msg: string
+    /**
+     * 响应数据
+     */
+    data: T
+}
+
+/**
  * 比赛状态
  */
 declare type MatchStatus = '' | 'final'

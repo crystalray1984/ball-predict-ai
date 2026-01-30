@@ -1,12 +1,22 @@
 /// <reference path="./extends.d.ts" />
 
-import { config } from '@config'
 import { type RouterContext } from '@koa/router'
 import { fail, formatOffsetLimit, success } from '@server/utils'
 import { Bmiss, type BmissCallbackData } from '@shared/bmiss'
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@shared/constants'
-import { BmissUser, BmissUserBet, CrownMainOdd, db, VMatch } from '@shared/db'
+import {
+    BmissRecharge,
+    BmissUser,
+    BmissUserBalanceLog,
+    BmissUserBet,
+    BmissWithdrawal,
+    CrownMainOdd,
+    db,
+    VMatch,
+} from '@shared/db'
+import { InnerError } from '@shared/inner-error'
 import { publish } from '@shared/rabbitmq'
+import { getSetting } from '@shared/settings'
 import { createToken } from '@shared/token'
 import Decimal from 'decimal.js'
 import { Action, Controller, createRouter, FromBody, Post } from 'koa-decorator-helpers'
@@ -20,6 +30,28 @@ import { ValidateBody } from './middlewares/validator'
  */
 @Controller({ prefix: '/api' })
 class ApiController {
+    /**
+     * 获取配置接口
+     */
+    @Action('/config')
+    async config() {
+        const settings = await getSetting(
+            'bmiss_bet_min_bet_amount',
+            'bmiss_bet_max_bet_per_match',
+            'bmiss_bet_bet_multiple',
+            'bmiss_bet_min_withdrawal',
+            // 'bmiss_bet_max_withdrawal',
+            'bmiss_bet_withdrawal_multiple',
+        )
+
+        //整理参数
+        const data = Object.fromEntries(
+            Object.entries(settings).map(([name, value]) => [name.substring(10), value]),
+        )
+
+        return success(data)
+    }
+
     /**
      * 登录接口
      */
@@ -95,7 +127,6 @@ class ApiController {
         //构建查询参数
         const where: WhereOptions<Attributes<BmissUserBet>> = {
             user_id: ctx.state.user.id,
-            paid: 1,
         }
         if (typeof params.match_id === 'number') {
             where.match_id = params.match_id
@@ -174,11 +205,7 @@ class ApiController {
     @RequireBmissUserToken
     @ValidateBody({
         odd_id: z.int().gt(0),
-        amount: z
-            .int()
-            .gte(config('bmiss-bet.bet_min', 100))
-            .lte(config('bmiss-bet.bet_max', 5000))
-            .multipleOf(config('bmiss-bet.bet_multiple', 100)),
+        amount: z.int().gt(0),
         type: z.enum(['ah1', 'ah2', 'win1', 'win2', 'draw', 'over', 'under']),
     })
     @Post('/bet')
@@ -187,6 +214,25 @@ class ApiController {
         @FromBody
         params: { odd_id: number; amount: number; type: OddType },
     ) {
+        //读取需要的配置
+        const { bmiss_bet_min_bet_amount, bmiss_bet_max_bet_per_match, bmiss_bet_bet_multiple } =
+            await getSetting(
+                'bmiss_bet_min_bet_amount',
+                'bmiss_bet_max_bet_per_match',
+                'bmiss_bet_bet_multiple',
+            )
+
+        //对参数做入参校验
+        if (params.amount < bmiss_bet_min_bet_amount) {
+            return fail(ctx.state.t('invalid_bet_amount'))
+        }
+        if (params.amount % bmiss_bet_bet_multiple !== 0) {
+            return fail(ctx.state.t('invalid_bet_amount'))
+        }
+        if (params.amount > bmiss_bet_max_bet_per_match) {
+            return fail(ctx.state.t('max_bet_reached'))
+        }
+
         //首先读取盘口
         const odd = await CrownMainOdd.findOne({
             where: {
@@ -200,14 +246,34 @@ class ApiController {
                 },
             ],
         })
-        if (!odd || !odd.is_active) {
-            //盘口已失效
+
+        const now = new Date()
+
+        if (!odd) {
+            //盘口不存在
             return fail(ctx.state.t('odd_invalid'))
         }
 
-        if (odd.match.match_time.valueOf() <= Date.now()) {
+        if (odd.match.match_time.valueOf() <= now.valueOf()) {
             //比赛已开始
             return fail(ctx.state.t('match_started'))
+        }
+
+        if (!odd.is_active) {
+            //盘口已失效，这是个特殊的错误，需要额外返回正确的盘口数据
+            const latest = await CrownMainOdd.findOne({
+                where: {
+                    match_id: odd.match_id,
+                    base: odd.base,
+                    is_active: 1,
+                },
+                attributes: ['id', 'condition', 'value1', 'value2'],
+            })
+            if (!latest) {
+                return fail(ctx.state.t('odd_invalid'))
+            }
+
+            return fail(ctx.state.t('odd_invalid'), 202, latest)
         }
 
         //校验盘口与投注方向一致，并计算投注水位
@@ -261,32 +327,72 @@ class ApiController {
                 return fail(ctx.state.t('invalid_action'))
         }
 
-        //创建投注订单
-        const bet = await BmissUserBet.create(
-            {
-                user_id: ctx.state.user.id,
-                openid: ctx.state.user.openid,
-                appid: ctx.state.user.appid,
-                match_id: odd.match_id,
-                base: odd.base,
-                type: params.type,
-                condition,
-                value,
-                amount: params.amount,
-            },
-            {
-                returning: ['id'],
-            },
-        )
+        const transaction = await db.transaction()
+        try {
+            //用户扣款
+            const user = (await BmissUser.findByPk(ctx.state.user.id, {
+                transaction,
+                lock: transaction.LOCK.UPDATE,
+                attributes: ['balance'],
+            }))!
+            if (Decimal(user.balance).lt(params.amount)) {
+                await transaction.rollback()
+                return fail(ctx.state.t('insufficient_balance'), 201)
+            }
 
-        //返回前端需要的投注数据
-        return success({
-            bet_id: bet.id,
-            payment_data: {
-                out_order_no: `bmiss_user_bet_${bet.id}`,
-                amount: params.amount,
-            },
-        })
+            //检查用户在当前比赛的总投注额，如果超过了限制就不允许再投注
+            const betSum = await BmissUserBet.sum('amount', {
+                where: {
+                    user_id: user.id,
+                    match_id: odd.match.id,
+                },
+                transaction,
+            })
+            if (betSum + params.amount > bmiss_bet_max_bet_per_match) {
+                await transaction.rollback()
+                return fail(ctx.state.t('max_bet_reached'))
+            }
+
+            //修改账户余额
+            user.balance = Decimal(user.balance).sub(params.amount).toString()
+            await user.save({ transaction })
+
+            //保存余额变动记录
+            await BmissUserBalanceLog.create(
+                {
+                    user_id: user.id,
+                    type: 'bet',
+                    amount: params.amount,
+                    balance_after: user.balance,
+                    created_at: now,
+                },
+                { transaction },
+            )
+
+            //保存投注订单
+            const bet = await BmissUserBet.create(
+                {
+                    user_id: ctx.state.user.id,
+                    match_id: odd.match_id,
+                    base: odd.base,
+                    type: params.type,
+                    condition,
+                    value,
+                    amount: params.amount,
+                    created_at: now,
+                },
+                {
+                    transaction,
+                },
+            )
+
+            await transaction.commit()
+
+            return success(bet)
+        } catch (err) {
+            await transaction.rollback()
+            throw err
+        }
     }
 
     /**
@@ -313,20 +419,26 @@ class ApiController {
             return
         }
 
-        switch (params.type) {
-            case 'consume':
-                //消费回调
-                console.log('[消费回调]', params)
-                //拆解out_order_no
-                const match = /^bmiss_user_bet_([0-9]+)$/.exec(params.data.out_order_no)
-                if (!match) {
-                    console.error('[消费回调]', '订单号无效', params.data.out_order_no)
-                    ctx.status = 400
-                    ctx.body = 'invalid out_order_no'
-                    return
-                }
-                this.checkBet(parseInt(match[1]))
-                break
+        if (params.type === 'consume') {
+            //消费回调
+            console.log('[消费回调]', params)
+
+            //拆解out_order_no
+            const match = /^bmiss_recharge_([0-9]+)$/.exec(params.data.out_order_no)
+            if (!match) {
+                console.error('[消费回调]', '订单号无效', params.data.out_order_no)
+                ctx.status = 400
+                ctx.body = 'invalid out_order_no'
+                return
+            }
+            const recharge_id = parseInt(match[1])
+            if (isNaN(recharge_id) || recharge_id <= 0) {
+                console.error('[消费回调]', '订单号无效', params.data.out_order_no)
+                ctx.body = 'invalid out_order_no'
+                return
+            }
+
+            await this.checkRecharge(recharge_id)
         }
 
         ctx.status = 200
@@ -334,98 +446,240 @@ class ApiController {
     }
 
     /**
-     * 检查单个投注订单是否投注成功
+     * 充值下单
      */
     @ValidateBody({
-        bet_id: z.int().gt(0),
+        amount: z.int().gt(0),
     })
-    @Post('/query_bet')
-    async queryBet(_: RouterContext, @FromBody params: { bet_id: number }) {
-        const bet = await this.checkBet(params.bet_id)
-        return success(bet)
+    @RequireBmissUserToken
+    @Post('/recharge')
+    async recharge(ctx: RouterContext, @FromBody { amount }: { amount: number }) {
+        const user = ctx.state.user as BmissUser
+        //创建充值订单
+        const order = await BmissRecharge.create({
+            user_id: user.id,
+            appid: user.appid,
+            openid: user.openid,
+            amount,
+        })
+
+        //返回充值需要的订单数据
+        return success({
+            order_id: order.id,
+            payment_data: {
+                out_order_no: `bmiss_recharge_${order.id}`,
+                amount,
+            },
+        })
     }
 
     /**
-     * 消费确认
+     * 检查充值是否完成
      */
-    async checkBet(bet_id: number) {
-        //查询订单
-        const bet = await BmissUserBet.findOne({
-            where: {
-                id: bet_id,
-            },
+    @ValidateBody({
+        order_id: z.int().gt(0),
+    })
+    @Post('/query_recharge')
+    async queryRecharge(_: RouterContext, @FromBody { order_id }: { order_id: number }) {
+        return success({
+            status: await this.checkRecharge(order_id),
         })
-        if (!bet) {
-            console.error('[消费查询]', '订单不存在', bet_id)
-            return null
-        }
-        if (bet.paid !== 0) {
-            //订单状态不是等待校验
-            return bet
-        }
+    }
 
-        //调用接口检查订单数据
-        const bmiss = Bmiss.create(bet.appid)
-        const retConsume = await bmiss.queryConsume({ out_order_no: `bmiss_user_bet_${bet.id}` })
-        if (retConsume.code !== 200) {
-            //消费未成功
-            return bet
-        }
+    /**
+     * 检查充值订单的完成
+     * @param id
+     */
+    async checkRecharge(id: number): Promise<number> {
+        //首先通过id查询充值订单
+        const recharge = await BmissRecharge.findByPk(id)
+        if (!recharge) return 0
+        if (recharge.status === 1) return 1
 
-        //事务处理
-        const result = await db.transaction(async (transaction) => {
+        //调用Bmiss接口获取真实订单数据
+        const bmiss = Bmiss.create(recharge.appid)
+        if (!bmiss) return 0
+
+        const resp = await bmiss.queryConsume({ out_order_no: `bmiss_recharge_${recharge.id}` })
+        if (resp.code !== 200 || !resp.data) return 0
+
+        //比对订单金额和用户信息
+        if (resp.data.openid !== recharge.openid) return 0
+        if (!Decimal(resp.data.amount).eq(recharge.amount)) return 0
+
+        //开启事务进行修改
+        const transaction = await db.transaction()
+        try {
             const now = new Date()
 
-            //先尝试修改订单状态
-            const [updated] = await BmissUserBet.update(
+            //先尝试把订单改成已完成
+            const [updated] = await BmissRecharge.update(
                 {
-                    paid: 1,
-                    created_at: now,
+                    status: 1,
+                    completed_at: now,
+                    bmiss_order_no: resp.data.order_no,
+                    bmiss_order_info: resp.data,
                 },
                 {
                     where: {
-                        id: bet.id,
-                        paid: 0,
+                        id: recharge.id,
+                        status: 0,
                     },
                     transaction,
                 },
             )
             if (!updated) {
-                //没有修改到，表示这个订单在其他的进程被改了状态
-                return false
+                //如果订单修改失败，那就表示这个订单在其他事务中已经被改成完成了
+                await transaction.rollback()
+                return 1
             }
 
-            //二次判断，这个订单是否已经超期
-            if (
-                now.valueOf() - bet.created_at.valueOf() >=
-                config('bmiss-bet.bet_expires', 60) * 1000
-            ) {
-                //订单已超期，不允许写入
-                await BmissUserBet.update(
-                    {
-                        paid: 2,
+            //给用户加钱
+            await BmissUser.increment(
+                {
+                    balance: recharge.amount,
+                },
+                {
+                    where: {
+                        id: recharge.user_id,
                     },
-                    {
-                        where: {
-                            id: bet.id,
-                        },
-                        transaction,
-                    },
-                )
-                return 2
-            }
+                    transaction,
+                },
+            )
 
-            //正常情况返回1
-            return 1
-        })
+            //查询用户最新的余额
+            const user = await BmissUser.findByPk(recharge.user_id, { transaction })
+            const balance_after = user?.balance ?? 0
 
-        if (result === 2) {
-            //状态为2表示订单超期需要退款，抛到一个退款队列
-            await publish('bmiss-bet-consume-rollback', JSON.stringify({ id: bet.id }))
+            //写入余额变动记录
+            await BmissUserBalanceLog.create({
+                user_id: recharge.user_id,
+                type: 'recharge',
+                amount: recharge.amount,
+                balance_after,
+                created_at: now,
+            })
+
+            //提交事务
+            await transaction.commit()
+        } catch (err) {
+            await transaction.rollback()
+            throw err
         }
 
-        //返回更新过信息的订单
-        return bet.reload()
+        return 1
+    }
+
+    /**
+     * 提现
+     */
+    @ValidateBody({
+        amount: z.int().gt(0),
+    })
+    @RequireBmissUserToken
+    @Post('/withdrawal')
+    async withdrawal(ctx: RouterContext, @FromBody { amount }: { amount: number }) {
+        //读取提现校验参数
+        const { bmiss_bet_min_withdrawal, bmiss_bet_withdrawal_multiple } = await getSetting(
+            'bmiss_bet_min_withdrawal',
+            'bmiss_bet_withdrawal_multiple',
+        )
+        if (amount < bmiss_bet_min_withdrawal) {
+            return ctx.state.t('invalid_withdrawal_amount')
+        }
+        if (amount % bmiss_bet_withdrawal_multiple !== 0) {
+            return ctx.state.t('invalid_withdrawal_amount')
+        }
+
+        //创建bmiss接口调用对象
+        const bmiss = Bmiss.create(ctx.state.user.appid)
+        if (!bmiss) {
+            throw new Error('invalid user appid')
+        }
+
+        const withdrawal = await db.transaction(async (transaction) => {
+            //查询用户余额
+            const user = await BmissUser.findByPk(ctx.state.user.id, {
+                transaction,
+                lock: transaction.LOCK.UPDATE,
+            })
+            if (!user) {
+                //抛出一个内部异常，回滚业务
+                throw new InnerError(ctx.state.t('insufficient_balance'))
+            }
+
+            if (Decimal(user.balance).lt(amount)) {
+                //余额不足
+                throw new InnerError(ctx.state.t('insufficient_balance'))
+            }
+
+            //修改用户余额
+            user.balance = Decimal(user.balance).sub(amount).toString()
+            await user.save({ transaction })
+
+            const now = new Date()
+
+            //写入余额变更记录
+            await BmissUserBalanceLog.create(
+                {
+                    user_id: user.id,
+                    type: 'withdrawal',
+                    amount,
+                    balance_after: user.balance,
+                },
+                { transaction },
+            )
+
+            //创建提现单
+            return await BmissWithdrawal.create(
+                {
+                    user_id: user.id,
+                    appid: user.appid,
+                    openid: user.appid,
+                    amount,
+                    created_at: now,
+                },
+                { transaction },
+            )
+        })
+
+        //调用接口进行提现
+        try {
+            const resp = await bmiss.withdrawal({
+                openid: withdrawal.openid,
+                out_order_no: `bmiss_withdrawal_${withdrawal.id}`,
+                amount: withdrawal.amount,
+            })
+            if (resp.code !== 200) {
+                //提现接口调用失败，抛出一个异常去走catch流程
+                throw new Error(JSON.stringify(resp))
+            }
+
+            //正常标记提现完成
+            withdrawal.bmiss_order_no = resp.data.order_no
+            withdrawal.status = 1
+            withdrawal.completed_at = new Date()
+            await withdrawal.save()
+        } catch (err) {
+            //记录提现失败的日志
+            console.error(`[提现失败]`, withdrawal)
+            console.error(err)
+            //抛到后续的提现重试队列
+            await publish(
+                'bmiss-bet-withdrawal-retry',
+                JSON.stringify({ id: withdrawal.id }),
+                {
+                    headers: { 'x-delay': 10 },
+                },
+                {
+                    arguments: {
+                        'x-delayed-type': 'direct',
+                    },
+                },
+            )
+        }
+
+        return success()
     }
 
     /**

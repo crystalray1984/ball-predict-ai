@@ -1,14 +1,25 @@
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@shared/constants'
 
 /**
- * 返回成功的响应体
+ * 返回响应体数据
  */
-export function success(data?: any) {
+export function response(code: number, msg: string): ApiResp<void>
+export function response<T>(code: number, msg: string, data: T): ApiResp<T>
+export function response<T>(code: number, msg: string, data?: T) {
     return {
-        code: 0,
-        msg: 'success',
+        code,
+        msg,
         data,
     }
+}
+
+/**
+ * 返回成功的响应体
+ */
+export function success(): ApiResp<void>
+export function success<T>(data: T): ApiResp<T>
+export function success(data?: any) {
+    return response(0, 'success', data)
 }
 
 /**
@@ -16,11 +27,11 @@ export function success(data?: any) {
  * @param code
  * @param msg
  */
-export function fail(msg: string, code: number = 400) {
-    return {
-        code,
-        msg,
-    }
+export function fail(msg: string): ApiResp<void>
+export function fail(msg: string, code: number): ApiResp<void>
+export function fail<T>(msg: string, code: number, data: T): ApiResp<T>
+export function fail(msg: string, code: number = 400, data?: any) {
+    return response(code, msg, data)
 }
 
 export function formatOffsetLimit(page?: number, page_size?: number) {

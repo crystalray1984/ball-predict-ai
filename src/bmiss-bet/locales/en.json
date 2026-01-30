@@ -4,5 +4,10 @@
     "not_login": "Not Loginned",
     "odd_invalid": "Odd Invalid",
     "match_started": "Match started",
-    "invalid_action": "Invalid action"
+    "invalid_action": "Invalid action",
+    "insufficient_balance": "Insufficient balance",
+    "invalid_bet_amount": "Invalid bet amount",
+    "max_bet_reached": "Max bet amount reached",
+    "order_not_found": "Order not found",
+    "invalid_withdrawal_amount": "Invalid withdrawal amount"
 }

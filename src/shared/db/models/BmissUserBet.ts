@@ -36,20 +36,6 @@ export class BmissUserBet extends Model<
     declare user_id: number
 
     /**
-     * 用户openid
-     */
-
-    @Column(DataType.STRING)
-    declare openid: string
-
-    /**
-     * Bmiss小程序appid
-     */
-
-    @Column(DataType.STRING)
-    declare appid: string
-
-    /**
      * 比赛id
      */
 
@@ -105,13 +91,6 @@ export class BmissUserBet extends Model<
     declare created_at: CreationOptional<Date>
 
     /**
-     * 是否下注成功
-     */
-
-    @Column(DataType.TINYINT)
-    declare paid: CreationOptional<number>
-
-    /**
      * 结算结果
      */
     @Column(DataType.TINYINT)
@@ -122,7 +101,7 @@ export class BmissUserBet extends Model<
      */
 
     @Column(DataType.INTEGER)
-    declare result_amount: CreationOptional<number>
+    declare result_amount: CreationOptional<NumberVal>
 
     /**
      * 结算状态

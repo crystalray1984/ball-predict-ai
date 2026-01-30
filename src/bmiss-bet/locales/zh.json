@@ -16,21 +16,6 @@
             "pid_file": "./runtime/bmiss-bet-server.pid"
         },
         {
-            "name": "bmiss-bet-consume-rollback",
-            "script": "./dist/bmiss-bet/start-consume-rollback.js",
-            "interpreter_args": "-r tsconfig-paths/register",
-            "env": {
-                "NODE_ENV": "production",
-                "TZ": "Asia/Shanghai",
-                "TS_NODE_BASEURL": "./dist"
-            },
-            "log_date_format": "YYYY-MM-DDTHH:mm:ss",
-            "merge_logs": true,
-            "error_file": "./runtime/logs/bmiss-bet-consume-rollback.log",
-            "out_file": "./runtime/logs/bmiss-bet-consume-rollback.log",
-            "pid_file": "./runtime/bmiss-bet-consume-rollback.pid"
-        },
-        {
             "name": "bmiss-bet-settlement",
             "script": "./dist/bmiss-bet/start-settlement.js",
             "interpreter_args": "-r tsconfig-paths/register",

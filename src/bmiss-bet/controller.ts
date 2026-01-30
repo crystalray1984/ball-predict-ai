@@ -20,6 +20,7 @@ import { getSetting } from '@shared/settings'
 import { createToken } from '@shared/token'
 import Decimal from 'decimal.js'
 import { Action, Controller, createRouter, FromBody, Post } from 'koa-decorator-helpers'
+import { isEmpty } from 'lodash'
 import { Attributes, Op, WhereOptions } from 'sequelize'
 import z from 'zod'
 import { RequireBmissUserToken } from './middlewares/require-bmiss-user-token'
@@ -185,16 +186,8 @@ class ApiController {
             ],
         })
 
-        //整理输出的数据
-        const list = rows.map((row) => {
-            const obj = row.toJSON() as any
-            obj.condition = parseFloat(obj.condition)
-            obj.value = parseFloat(obj.value)
-            return obj
-        })
-
         return success({
-            list,
+            list: rows,
             total: count,
         })
     }
@@ -362,7 +355,7 @@ class ApiController {
                 {
                     user_id: user.id,
                     type: 'bet',
-                    amount: params.amount,
+                    amount: 0 - params.amount,
                     balance_after: user.balance,
                     created_at: now,
                 },
@@ -624,7 +617,7 @@ class ApiController {
                 {
                     user_id: user.id,
                     type: 'withdrawal',
-                    amount,
+                    amount: 0 - amount,
                     balance_after: user.balance,
                 },
                 { transaction },
@@ -796,6 +789,39 @@ class ApiController {
         }
 
         return success([])
+    }
+
+    /**
+     * 查询用户的余额变动记录
+     */
+    @ValidateBody({
+        type: z.optional(z.string()),
+        page: z.optional(z.int().gt(0)),
+        page_size: z.optional(z.int().gt(0)),
+    })
+    @RequireBmissUserToken
+    @Post('/balance_log')
+    async balanceLog(
+        ctx: RouterContext,
+        @FromBody params: { type?: string; page?: number; page_size?: number },
+    ) {
+        const where: WhereOptions<Attributes<BmissUserBalanceLog>> = {
+            user_id: ctx.state.user.id,
+        }
+        if (!isEmpty(params.type)) {
+            where.type = params.type
+        }
+
+        const { rows, count } = await BmissUserBalanceLog.findAndCountAll({
+            where,
+            order: [['created_at', 'desc']],
+            ...formatOffsetLimit(params.page, params.page_size),
+        })
+
+        return {
+            total: count,
+            list: rows,
+        }
     }
 }
 

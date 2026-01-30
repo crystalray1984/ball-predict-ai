@@ -83,4 +83,18 @@ export class BmissUser extends Model<
      */
     @Column(DataType.INTEGER)
     declare balance: CreationOptional<NumberVal>
+
+    public toJSON(): object {
+        const obj = this.get()
+
+        if ('balance' in obj) {
+            obj.balance = Number(obj.balance)
+        }
+
+        if ('profit' in obj) {
+            obj.profit = Number(obj.profit)
+        }
+
+        return obj
+    }
 }

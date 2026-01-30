@@ -122,4 +122,19 @@ export class BmissUserBet extends Model<
      */
     @Column(DataType.DATE)
     declare settlement_at: CreationOptional<Date | null>
+
+    public toJSON(): object {
+        const obj = this.get()
+        if ('condition' in obj) {
+            obj.condition = Number(obj.condition)
+        }
+        if ('value' in obj) {
+            obj.value = Number(obj.value)
+        }
+        if ('result_amount' in obj) {
+            obj.result_amount = Number(obj.result_amount)
+        }
+
+        return obj
+    }
 }

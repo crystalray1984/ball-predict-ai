@@ -818,10 +818,10 @@ class ApiController {
             ...formatOffsetLimit(params.page, params.page_size),
         })
 
-        return {
+        return success({
             total: count,
             list: rows,
-        }
+        })
     }
 
     /**

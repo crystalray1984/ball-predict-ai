@@ -2,6 +2,7 @@ import Koa from 'koa'
 import koaBody from 'koa-body'
 import { router } from './controller'
 import { catchError } from './middlewares/catch-error'
+import { cors } from './middlewares/cors'
 import { locale } from './middlewares/locale'
 
 /**
@@ -11,6 +12,9 @@ export function createApp() {
     const app = new Koa({
         proxy: true,
     })
+
+    //跨域中间件
+    app.use(cors())
 
     //异常捕获中间件
     app.use(catchError())

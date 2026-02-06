@@ -103,29 +103,11 @@ export async function publish(...args: any[]) {
         await channel.waitForConfirms()
     } else {
         if (Array.isArray(content)) {
-            const promises = content.map(
-                (data) =>
-                    new Promise<void>((resolve, reject) => {
-                        channel.sendToQueue(queue, Buffer.from(data, 'utf-8'), options, (err) => {
-                            if (err) {
-                                reject(err)
-                            } else {
-                                resolve()
-                            }
-                        })
-                    }),
-            )
-            return Promise.all(promises)
-        } else {
-            return new Promise<void>((resolve, reject) => {
-                channel.sendToQueue(queue, Buffer.from(content, 'utf-8'), options, (err) => {
-                    if (err) {
-                        reject(err)
-                    } else {
-                        resolve()
-                    }
-                })
+            content.forEach((data) => {
+                channel.sendToQueue(queue, Buffer.from(data, 'utf-8'), options)
             })
+        } else {
+            channel.sendToQueue(queue, Buffer.from(content, 'utf-8'), options)
         }
     }
 }

@@ -1,5 +1,5 @@
 import { config } from '@config'
-import { ChannelModel, ConfirmChannel, connect, Options } from 'amqplib'
+import { Channel, ChannelModel, ConfirmChannel, connect, Options } from 'amqplib'
 import { singleton } from './utils'
 
 let connection = null as unknown as ChannelModel
@@ -48,24 +48,86 @@ export async function close() {
  * @param forceAssert
  */
 export async function publish(
+    channel: Channel,
     queue: string,
     content: string | string[],
     options?: Options.Publish,
     assertOptions?: Options.AssertQueue,
-) {
-    const channel = await getPublishChannel()
+): Promise<void>
+/**
+ * 发布数据到消息队列
+ * @param queue
+ * @param content
+ * @param options
+ * @param forceAssert
+ */
+export async function publish(
+    queue: string,
+    content: string | string[],
+    options?: Options.Publish,
+    assertOptions?: Options.AssertQueue,
+): Promise<void>
+/**
+ * 发布数据到消息队列
+ * @param queue
+ * @param content
+ * @param options
+ * @param forceAssert
+ */
+export async function publish(...args: any[]) {
+    let channel: Channel | ConfirmChannel
+    if (typeof args[0] === 'string') {
+        channel = await getPublishChannel()
+    } else {
+        channel = args[0]
+        args.shift()
+    }
+
+    const [queue, content, options, assertOptions] = args
+
     if (!assertedQueues.includes(queue)) {
         await channel.assertQueue(queue, assertOptions)
     }
     if (!assertedQueues.includes(queue)) {
         assertedQueues.push(queue)
     }
-    if (Array.isArray(content)) {
-        content.forEach((data) => channel.sendToQueue(queue, Buffer.from(data, 'utf-8'), options))
+
+    if ('waitForConfirms' in channel && typeof channel.waitForConfirms === 'function') {
+        if (Array.isArray(content)) {
+            content.forEach((data) =>
+                channel.sendToQueue(queue, Buffer.from(data, 'utf-8'), options),
+            )
+        } else {
+            channel.sendToQueue(queue, Buffer.from(content, 'utf-8'), options)
+        }
+        await channel.waitForConfirms()
     } else {
-        channel.sendToQueue(queue, Buffer.from(content, 'utf-8'), options)
+        if (Array.isArray(content)) {
+            const promises = content.map(
+                (data) =>
+                    new Promise<void>((resolve, reject) => {
+                        channel.sendToQueue(queue, Buffer.from(data, 'utf-8'), options, (err) => {
+                            if (err) {
+                                reject(err)
+                            } else {
+                                resolve()
+                            }
+                        })
+                    }),
+            )
+            return Promise.all(promises)
+        } else {
+            return new Promise<void>((resolve, reject) => {
+                channel.sendToQueue(queue, Buffer.from(content, 'utf-8'), options, (err) => {
+                    if (err) {
+                        reject(err)
+                    } else {
+                        resolve()
+                    }
+                })
+            })
+        }
     }
-    await channel.waitForConfirms()
 }
 
 export interface ConsumeOptions extends Options.Consume {
@@ -80,7 +142,7 @@ export interface ConsumeOptions extends Options.Consume {
  */
 export function consume(
     queue: string,
-    callback: (content: string) => any,
+    callback: (content: string, channel: Channel) => any,
     options: ConsumeOptions = {},
     assertOptions?: Options.AssertQueue,
 ): [Promise<void>, () => void] {
@@ -107,7 +169,7 @@ export function consume(
                             return
                         }
                         try {
-                            await callback(msg.content.toString('utf-8'))
+                            await callback(msg.content.toString('utf-8'), channel)
                             channel.ack(msg)
                         } catch (err) {
                             console.error(err)

@@ -1,12 +1,13 @@
 import { Bmiss } from '@shared/bmiss'
 import { BmissWithdrawal } from '@shared/db'
 import { consume, publish } from '@shared/rabbitmq'
+import { Channel } from 'amqplib'
 
 /**
  * 执行提现重试
  * @param id
  */
-async function processWithdrawalRetry(id: number) {
+async function processWithdrawalRetry(id: number, channel: Channel) {
     //查询提现单
     const withdrawal = await BmissWithdrawal.findByPk(id)
     if (!withdrawal || withdrawal.status === 1) {
@@ -50,6 +51,7 @@ async function processWithdrawalRetry(id: number) {
     } else {
         //提现失败了，重入队列
         await publish(
+            channel,
             'bmiss-bet-withdrawal-retry',
             JSON.stringify({ id }),
             {
@@ -71,9 +73,9 @@ async function startWithdrawalRetry() {
     while (true) {
         const [promise] = consume(
             'bmiss-bet-withdrawal-retry',
-            async (content) => {
+            async (content, channel) => {
                 const data = JSON.parse(content)
-                await processWithdrawalRetry(data.id)
+                await processWithdrawalRetry(data.id, channel)
             },
             {},
             {

@@ -32,7 +32,12 @@ async function processWithdrawalRetry(id: number, channel: Channel) {
         amount: withdrawal.amount,
         out_order_no: `bmiss_withdrawal_${withdrawal.id}`,
     })
-
+    console.log(`[提现请求]`, {
+        openid: withdrawal.openid,
+        amount: withdrawal.amount,
+        out_order_no: `bmiss_withdrawal_${withdrawal.id}`,
+    })
+    console.log(`[提现结果]`, ret)
     if (ret.code === 200 && ret.data.order_no) {
         //提现成功
         await BmissWithdrawal.update(

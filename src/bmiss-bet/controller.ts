@@ -628,7 +628,7 @@ class ApiController {
                 {
                     user_id: user.id,
                     appid: user.appid,
-                    openid: user.appid,
+                    openid: user.openid,
                     amount,
                     created_at: now,
                 },

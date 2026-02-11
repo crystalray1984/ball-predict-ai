@@ -24,9 +24,9 @@ import { Action, Controller, createRouter, FromBody, Post } from 'koa-decorator-
 import { isEmpty } from 'lodash'
 import { Attributes, Op, WhereOptions } from 'sequelize'
 import z from 'zod'
+import { pickByLocale } from './i18next'
 import { RequireBmissUserToken } from './middlewares/require-bmiss-user-token'
 import { ValidateBody } from './middlewares/validator'
-import { pickByLocale } from './i18next'
 
 /**
  * 接口控制器
@@ -176,6 +176,7 @@ class ApiController {
                         'team1_i18n_name',
                         'team2_i18n_name',
                         'tournament_i18n_name',
+                        'error_status',
                     ],
                 },
             ],
@@ -757,6 +758,7 @@ class ApiController {
                         'has_score',
                         'score1',
                         'score2',
+                        'error_status',
                     ],
                 },
             ],
@@ -805,6 +807,7 @@ class ApiController {
                         db.literal("CURRENT_TIMESTAMP + interval '24 hours'"),
                     ],
                 },
+                error_status: '',
             },
             attributes: [
                 'id',

@@ -18,6 +18,7 @@ import { InnerError } from '@shared/inner-error'
 import { publish } from '@shared/rabbitmq'
 import { getSetting } from '@shared/settings'
 import { createToken } from '@shared/token'
+import { isDecimal } from '@shared/utils'
 import Decimal from 'decimal.js'
 import { Action, Controller, createRouter, FromBody, Post } from 'koa-decorator-helpers'
 import { isEmpty } from 'lodash'
@@ -41,7 +42,6 @@ class ApiController {
             'bmiss_bet_max_bet_per_match',
             'bmiss_bet_bet_multiple',
             'bmiss_bet_min_withdrawal',
-            // 'bmiss_bet_max_withdrawal',
             'bmiss_bet_withdrawal_multiple',
         )
 
@@ -208,12 +208,17 @@ class ApiController {
         params: { odd_id: number; amount: number; type: OddType },
     ) {
         //读取需要的配置
-        const { bmiss_bet_min_bet_amount, bmiss_bet_max_bet_per_match, bmiss_bet_bet_multiple } =
-            await getSetting(
-                'bmiss_bet_min_bet_amount',
-                'bmiss_bet_max_bet_per_match',
-                'bmiss_bet_bet_multiple',
-            )
+        const {
+            bmiss_bet_min_bet_amount,
+            bmiss_bet_max_bet_per_match,
+            bmiss_bet_bet_multiple,
+            bmiss_bet_value_adjust,
+        } = await getSetting(
+            'bmiss_bet_min_bet_amount',
+            'bmiss_bet_max_bet_per_match',
+            'bmiss_bet_bet_multiple',
+            'bmiss_bet_value_adjust',
+        )
 
         //对参数做入参校验
         if (params.amount < bmiss_bet_min_bet_amount) {
@@ -318,6 +323,11 @@ class ApiController {
                 break
             default:
                 return fail(ctx.state.t('invalid_action'))
+        }
+
+        //对水位做出调整
+        if (isDecimal(bmiss_bet_value_adjust)) {
+            value = Decimal(value).add(bmiss_bet_value_adjust).toString()
         }
 
         const transaction = await db.transaction()
@@ -739,6 +749,8 @@ class ApiController {
      */
     @Action('/betable_matches')
     async betableMatches() {
+        const bmiss_bet_value_adjust = await getSetting<number>('bmiss_bet_value_adjust')
+
         const matches = await VMatch.findAll({
             where: {
                 bmiss_bet_enable: 1,
@@ -774,13 +786,21 @@ class ApiController {
                 const odd = odds.find((t) => t.match_id === match.id)
                 if (!odd) return
 
+                //调整水位
+                let value1 = odd.value1
+                let value2 = odd.value2
+                if (isDecimal(bmiss_bet_value_adjust)) {
+                    value1 = Decimal(value1).add(bmiss_bet_value_adjust).toString()
+                    value2 = Decimal(value2).add(bmiss_bet_value_adjust).toString()
+                }
+
                 list.push({
                     ...match.toJSON(),
                     odd: {
                         id: odd.id,
                         condition: Number(odd.condition),
-                        value1: Number(odd.value1),
-                        value2: Number(odd.value2),
+                        value1: Number(value1),
+                        value2: Number(value2),
                     },
                 })
             })

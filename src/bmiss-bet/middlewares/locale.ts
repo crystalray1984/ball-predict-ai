@@ -24,6 +24,7 @@ export function locale(): Middleware {
                 const lang = normalizeLanguage(part.split(';')[0].trim())
                 if (AVALIABLE_LANGUAGES.includes(lang)) {
                     ctx.state.t = i18next.getFixedT(lang)
+                    ctx.state.lang = lang
                     return next()
                 }
             }
@@ -31,6 +32,7 @@ export function locale(): Middleware {
 
         //无法解析就返回默认的数据
         ctx.state.t = i18next.getFixedT(DEFAULT_LANGUAGE)
+        ctx.state.lang = DEFAULT_LANGUAGE
         return next()
     }
 }

@@ -26,6 +26,7 @@ import { Attributes, Op, WhereOptions } from 'sequelize'
 import z from 'zod'
 import { RequireBmissUserToken } from './middlewares/require-bmiss-user-token'
 import { ValidateBody } from './middlewares/validator'
+import { pickByLocale } from './i18next'
 
 /**
  * 接口控制器
@@ -166,7 +167,16 @@ class ApiController {
                 {
                     model: VMatch,
                     required: true,
-                    attributes: ['id', 'match_time', 'team1_name', 'team2_name', 'tournament_name'],
+                    attributes: [
+                        'id',
+                        'match_time',
+                        'team1_name',
+                        'team2_name',
+                        'tournament_name',
+                        'team1_i18n_name',
+                        'team2_i18n_name',
+                        'tournament_i18n_name',
+                    ],
                 },
             ],
             order: [['id', 'desc']],
@@ -186,8 +196,25 @@ class ApiController {
             ],
         })
 
+        //多语言处理
+        const list = rows.map((row) => {
+            row.match.tournament_name =
+                pickByLocale(row.match.tournament_i18n_name, ctx.state.lang) ??
+                row.match.tournament_name
+            row.match.team1_name =
+                pickByLocale(row.match.team1_i18n_name, ctx.state.lang) ?? row.match.team1_name
+            row.match.team2_name =
+                pickByLocale(row.match.team2_i18n_name, ctx.state.lang) ?? row.match.team2_name
+
+            row.match.set('tournament_i18n_name', undefined as any)
+            row.match.set('team1_i18n_name', undefined as any)
+            row.match.set('team2_i18n_name', undefined as any)
+
+            return row
+        })
+
         return success({
-            list: rows,
+            list,
             total: count,
         })
     }
@@ -694,7 +721,7 @@ class ApiController {
     })
     @Post('/matches')
     async matches(
-        _: RouterContext,
+        ctx: RouterContext,
         @FromBody
         params: {
             page?: number
@@ -722,8 +749,11 @@ class ApiController {
                         'id',
                         'match_time',
                         'team1_name',
+                        'team1_i18n_name',
                         'team2_name',
+                        'team2_i18n_name',
                         'tournament_name',
+                        'tournament_i18n_name',
                         'has_score',
                         'score1',
                         'score2',
@@ -739,7 +769,22 @@ class ApiController {
         })
 
         return success({
-            list: rows.map((row) => row.match),
+            list: rows.map((row) => {
+                //多语言处理
+                row.match.tournament_name =
+                    pickByLocale(row.match.tournament_i18n_name, ctx.state.lang) ??
+                    row.match.tournament_name
+                row.match.team1_name =
+                    pickByLocale(row.match.team1_i18n_name, ctx.state.lang) ?? row.match.team1_name
+                row.match.team2_name =
+                    pickByLocale(row.match.team2_i18n_name, ctx.state.lang) ?? row.match.team2_name
+
+                row.match.set('tournament_i18n_name', undefined as any)
+                row.match.set('team1_i18n_name', undefined as any)
+                row.match.set('team2_i18n_name', undefined as any)
+
+                return row.match
+            }),
             total: count,
         })
     }
@@ -748,7 +793,7 @@ class ApiController {
      * 获取当前可投注的比赛列表
      */
     @Action('/betable_matches')
-    async betableMatches() {
+    async betableMatches(ctx: RouterContext) {
         const bmiss_bet_value_adjust = await getSetting<number>('bmiss_bet_value_adjust')
 
         const matches = await VMatch.findAll({
@@ -761,7 +806,16 @@ class ApiController {
                     ],
                 },
             },
-            attributes: ['id', 'match_time', 'team1_name', 'team2_name', 'tournament_name'],
+            attributes: [
+                'id',
+                'match_time',
+                'team1_name',
+                'team1_i18n_name',
+                'team2_name',
+                'team2_i18n_name',
+                'tournament_name',
+                'tournament_i18n_name',
+            ],
             order: [
                 ['match_time', 'asc'],
                 ['tournament_id', 'asc'],
@@ -793,6 +847,19 @@ class ApiController {
                     value1 = Decimal(value1).add(bmiss_bet_value_adjust).toString()
                     value2 = Decimal(value2).add(bmiss_bet_value_adjust).toString()
                 }
+
+                //多语言处理
+                match.tournament_name =
+                    pickByLocale(match.tournament_i18n_name, ctx.state.lang) ??
+                    match.tournament_name
+                match.team1_name =
+                    pickByLocale(match.team1_i18n_name, ctx.state.lang) ?? match.team1_name
+                match.team2_name =
+                    pickByLocale(match.team2_i18n_name, ctx.state.lang) ?? match.team2_name
+
+                match.set('tournament_i18n_name', undefined as any)
+                match.set('team1_i18n_name', undefined as any)
+                match.set('team2_i18n_name', undefined as any)
 
                 list.push({
                     ...match.toJSON(),

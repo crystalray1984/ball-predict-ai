@@ -46,6 +46,12 @@ export class Tournament extends Model<
     declare name: string
 
     /**
+     * 多语言赛事名称
+     */
+    @Column(DataType.JSON)
+    declare i18n_name: CreationOptional<Record<string, string> | null>
+
+    /**
      * 是否开启推荐
      */
 

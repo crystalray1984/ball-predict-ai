@@ -28,3 +28,18 @@ i18next.init({
 })
 
 export default i18next
+
+/**
+ * 按语言选择数据
+ * @param source
+ * @param lang
+ */
+export function pickByLocale(source: Record<string, string> | null | undefined, lang: string) {
+    if (typeof source !== 'object' || !source) return
+    if (typeof lang !== 'string') return
+    if (typeof source[lang] === 'string') {
+        return source[lang]
+    } else if (lang !== DEFAULT_LANGUAGE && typeof source[DEFAULT_LANGUAGE] === 'string') {
+        return source[DEFAULT_LANGUAGE]
+    }
+}

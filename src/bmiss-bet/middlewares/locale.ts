@@ -12,6 +12,18 @@ export function locale(): Middleware {
             const lang = normalizeLanguage(headerValue)
             if (AVALIABLE_LANGUAGES.includes(lang)) {
                 ctx.state.t = i18next.getFixedT(lang)
+                ctx.state.lang = lang
+                return next()
+            }
+        }
+
+        //基于Cookie里的lang数据
+        const cookieValue = ctx.cookies.get('lang')
+        if (cookieValue) {
+            const lang = normalizeLanguage(cookieValue)
+            if (AVALIABLE_LANGUAGES.includes(lang)) {
+                ctx.state.t = i18next.getFixedT(lang)
+                ctx.state.lang = lang
                 return next()
             }
         }

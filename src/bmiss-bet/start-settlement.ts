@@ -51,7 +51,7 @@ async function settlement(match_id: number) {
                 //半输
                 bet.result_amount = Decimal(bet.amount).div(2).floor().toNumber()
                 break
-            case 2:
+            case -2:
                 //全输
                 bet.result_amount = 0
                 break

@@ -13,9 +13,15 @@ async function settlement(match_id: number) {
         where: {
             id: match_id,
         },
-        attributes: ['has_score', 'score1', 'score2'],
+        attributes: ['error_status', 'has_score', 'score1', 'score2'],
     })
     if (!match) return
+
+    if (match.error_status === 'cancelled' || match.error_status === 'interrupted') {
+        //比赛中断，走全部退回的逻辑
+        await cancelBets(match_id, match.error_status)
+    }
+
     if (!match.has_score) return
 
     //查询这场比赛所有的投注单
@@ -105,6 +111,58 @@ async function settlement(match_id: number) {
                 if (!profit.eq(0)) {
                     user.profit = Decimal(user.profit).add(profit).toString()
                 }
+
+                await user.save({ transaction })
+            }
+        })
+    }
+}
+
+/**
+ * 取消所有的注单（由于比赛取消、中断或者延期过长）
+ * @param match_id
+ */
+async function cancelBets(match_id: number, error_status: string) {
+    //查询这场比赛所有的投注单
+    const bets = await BmissUserBet.findAll({
+        where: {
+            match_id,
+            result: null,
+        },
+    })
+
+    if (bets.length === 0) return
+
+    for (const bet of bets) {
+        //结算投注单
+        bet.result = 99
+        bet.result_text = error_status
+        bet.result_amount = bet.amount
+        bet.settlement_at = new Date()
+
+        await db.transaction(async (transaction) => {
+            //保存数据
+            await bet.save({ transaction })
+
+            //读取用户信息
+            const user = await BmissUser.findByPk(bet.user_id, {
+                transaction,
+                lock: transaction.LOCK.UPDATE,
+            })
+            if (user) {
+                //增加余额
+                user.balance = Decimal(user.balance).add(bet.result_amount).toString()
+                //插入余额变动记录表
+                await BmissUserBalanceLog.create(
+                    {
+                        user_id: bet.user_id,
+                        type: 'bet_result',
+                        amount: bet.result_amount,
+                        balance_after: user.balance,
+                        created_at: bet.settlement_at!,
+                    },
+                    { transaction },
+                )
 
                 await user.save({ transaction })
             }

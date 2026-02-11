@@ -24,7 +24,7 @@ declare type MatchStatus = '' | 'final'
 /**
  * 比赛异常状态
  */
-declare type MatchErrorStatus = '' | 'delayed'
+declare type MatchErrorStatus = '' | 'delayed' | 'cancelled' | 'interrupted'
 
 /**
  * Luffa用户类型 0-用户 1-群组

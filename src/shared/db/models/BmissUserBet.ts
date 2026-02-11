@@ -94,7 +94,7 @@ export class BmissUserBet extends Model<
      * 结算结果
      */
     @Column(DataType.TINYINT)
-    declare result: CreationOptional<-2 | -1 | 0 | 1 | 2 | null>
+    declare result: CreationOptional<-2 | -1 | 0 | 1 | 2 | 99 | null>
 
     /**
      * 结算收益

@@ -1,6 +1,6 @@
 import { config } from '@config'
 import { Channel, ChannelModel, ConfirmChannel, connect, Options } from 'amqplib'
-import { singleton } from './utils'
+import { singleton } from './task'
 
 let connection = null as unknown as ChannelModel
 let publishChannel = null as unknown as ConfirmChannel
